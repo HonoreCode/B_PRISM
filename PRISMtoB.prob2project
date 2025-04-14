@@ -1,0 +1,37 @@
+{
+  "name": "PRISMtoB",
+  "description": "",
+  "machines": [
+    {
+      "name": "Synchronous_Leader_Election_Protocol",
+      "description": "",
+      "location": "Synchronous_Leader_Election_Protocol.mch",
+      "lastUsedPreferenceName": "default",
+      "validationTasks": [
+        {
+          "taskType": "MODEL_CHECKING",
+          "searchStrategy": "MIXED_BF_DF",
+          "options": [
+            "FIND_DEADLOCKS",
+            "FIND_INVARIANT_VIOLATIONS"
+          ],
+          "selected": true
+        }
+      ],
+      "ltlPatterns": [],
+      "simulations": [],
+      "visBVisualisations": []
+    }
+  ],
+  "requirements": [],
+  "preferences": [],
+  "metadata": {
+    "fileType": "Project",
+    "formatVersion": 57,
+    "savedAt": "2025-04-14T12:55:14.099343Z",
+    "creator": "User",
+    "proB2KernelVersion": "4.13.2-SNAPSHOT",
+    "proBCliVersion": null,
+    "modelName": null
+  }
+}
