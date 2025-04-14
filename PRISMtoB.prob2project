@@ -21,6 +21,25 @@
       "ltlPatterns": [],
       "simulations": [],
       "visBVisualisations": []
+    },
+    {
+      "name": "Crowds_protocol",
+      "description": "",
+      "location": "Crowds_protocol.mch",
+      "lastUsedPreferenceName": "default",
+      "validationTasks": [
+        {
+          "taskType": "MODEL_CHECKING",
+          "searchStrategy": "MIXED_BF_DF",
+          "options": [
+            "FIND_INVARIANT_VIOLATIONS"
+          ],
+          "selected": true
+        }
+      ],
+      "ltlPatterns": [],
+      "simulations": [],
+      "visBVisualisations": []
     }
   ],
   "requirements": [],
@@ -28,7 +47,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-14T12:55:14.099343Z",
+    "savedAt": "2025-04-14T15:31:17.662742Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
