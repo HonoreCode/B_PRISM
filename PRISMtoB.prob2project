@@ -16,10 +16,103 @@
             "FIND_INVARIANT_VIOLATIONS"
           ],
           "selected": true
+        },
+        {
+          "taskType": "SIMULATION",
+          "id": "1",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "ENDING_PREDICATE": "ran(S)={finishing}",
+            "MAX_STEPS_BEFORE_PROPERTY": 0
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "ENDING_PREDICATE": "ran(S)={finishing}",
+            "MAX_STEPS_BEFORE_PROPERTY": 0
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 20
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 50
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 5,
+            "STEPS_PER_EXECUTION": 60
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 60
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "../../../../../Downloads/B.json",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "ENDING_PREDICATE": "ran(S)={finishing}",
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 3000
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "../../../../../Downloads/B.json",
+          "type": "ESTIMATION",
+          "information": {
+            "ENDING_PREDICATE": "ran(S)={finishing}",
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 3000,
+            "ESTIMATION_TYPE": "MEAN",
+            "EXPRESSION": "rounds",
+            "DESIRED_VALUE": 1.0,
+            "CHECKING_TYPE": "MAXIMUM",
+            "EPSILON": 0.2
+          }
+        },
+        {
+          "taskType": "CTL",
+          "description": "",
+          "stateLimit": -1,
+          "code": "EF({rounds>3})",
+          "startState": "ALL_INITIAL_STATES",
+          "expectedResult": true,
+          "selected": true
         }
       ],
       "ltlPatterns": [],
-      "simulations": [],
+      "simulations": [
+        {
+          "path": "../../../../../Downloads/B.json"
+        }
+      ],
       "visBVisualisations": []
     },
     {
@@ -32,6 +125,7 @@
           "taskType": "MODEL_CHECKING",
           "searchStrategy": "MIXED_BF_DF",
           "options": [
+            "FIND_DEADLOCKS",
             "FIND_INVARIANT_VIOLATIONS"
           ],
           "selected": true
@@ -47,7 +141,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-14T15:31:17.662742Z",
+    "savedAt": "2025-04-15T14:29:02.979205200Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,

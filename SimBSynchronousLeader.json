@@ -1,0 +1,83 @@
+{
+  "activations": [
+    {
+      "id": "$initialise_machine",
+      "execute": "$initialise_machine",
+      "activating": [
+        "pick"
+      ]
+    },
+    {
+      "id": "pick",
+      "execute": "pick",
+      "after":"50",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "read1",
+        "read2"
+      ]
+    },
+    {
+      "id": "read1",
+      "execute": "read1",
+      "after":"50",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "read1",
+        "read2"
+      ]
+    },
+    {
+      "id": "read2",
+      "execute": "read2",
+      "after":"50",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "done",
+        "retry"
+      ]
+    },
+    {
+      "id": "done",
+      "execute": "done",
+      "after":"50",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "loop"
+      ]
+    },
+    {
+      "id": "retry",
+      "execute": "retry",
+      "after":"50",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "pick"
+      ]
+    },
+    {
+      "id": "loop",
+      "execute": "loop",
+      "after":"50",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "loop"
+      ]
+    }
+  ],
+  "metadata": {
+    "fileType": "Simulation",
+    "formatVersion": 4,
+    "savedAt": "2025-04-15T14:30:42.585388900Z",
+    "creator": "User",
+    "proB2KernelVersion": "4.13.2-SNAPSHOT",
+    "proBCliVersion": "1.15.0-nightly (dd55f65bd3ff37158b23b09d60cc8ec2774910dd)",
+    "modelName": null
+  }
+}
