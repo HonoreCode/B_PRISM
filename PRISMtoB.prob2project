@@ -105,12 +105,22 @@
           "startState": "ALL_INITIAL_STATES",
           "expectedResult": true,
           "selected": true
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "SimBSynchronousLeader.json",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "ENDING_PREDICATE": "ran(S)={finishing}",
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 500
+          }
         }
       ],
       "ltlPatterns": [],
       "simulations": [
         {
-          "path": "../../../../../Downloads/B.json"
+          "path": "SimBSynchronousLeader.json"
         }
       ],
       "visBVisualisations": []
@@ -141,7 +151,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-15T14:29:02.979205200Z",
+    "savedAt": "2025-04-15T15:13:09.637809800Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,

@@ -4,69 +4,101 @@
       "id": "$initialise_machine",
       "execute": "$initialise_machine",
       "activating": [
-        "pick"
+        "pick",
+        "read1",
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "pick",
       "execute": "pick",
-      "after":"50",
+      "after":"100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
         "read1",
-        "read2"
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "read1",
       "execute": "read1",
-      "after":"50",
+      "after":"100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
         "read1",
-        "read2"
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "read2",
       "execute": "read2",
-      "after":"50",
+      "after":"100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
+        "read1",
+        "read2",
         "done",
-        "retry"
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "done",
       "execute": "done",
-      "after":"50",
+      "after":"100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
+        "read1",
+        "read2",
+        "done",
+        "retry",
         "loop"
       ]
     },
     {
       "id": "retry",
       "execute": "retry",
-      "after":"50",
+      "after":"100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
-        "pick"
+        "pick",
+        "read1",
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "loop",
       "execute": "loop",
-      "after":"50",
+      "after":"100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
+        "read1",
+        "read2",
+        "done",
+        "retry",
         "loop"
       ]
     }
