@@ -8,69 +8,108 @@
         "read1",
         "read2",
         "done",
-        "retry"
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "pick",
       "execute": "pick",
-      "after":"10",
-      "activationKind": "multi",
+      "after": "100",
+      "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
         "read1",
-        "read2"
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "read1",
       "execute": "read1",
-      "after":"10",
+      "after": "100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
         "read1",
-        "read2"
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "read2",
       "execute": "read2",
-      "after":"10",
+      "after": "100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
+        "read1",
+        "read2",
         "done",
-        "retry"
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "done",
       "execute": "done",
-      "after":"10",
+      "after": "100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
+        "pick",
+        "read1",
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     },
     {
       "id": "retry",
       "execute": "retry",
-      "after":"10",
+      "after": "100",
       "activationKind": "single:max",
       "transitionSelection": "uniform",
       "activating": [
-        "pick"
+        "pick",
+        "read1",
+        "read2",
+        "done",
+        "retry",
+        "loop"
+      ]
+    },
+    {
+      "id": "loop",
+      "execute": "loop",
+      "after": "100",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "pick",
+        "read1",
+        "read2",
+        "done",
+        "retry",
+        "loop"
       ]
     }
   ],
   "metadata": {
     "fileType": "Simulation",
     "formatVersion": 4,
-    "savedAt": "2025-04-15T14:30:42.585388900Z",
+    "savedAt": "2025-04-16T07:36:27.796638400Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
-    "proBCliVersion": "1.15.0-nightly (dd55f65bd3ff37158b23b09d60cc8ec2774910dd)",
+    "proBCliVersion": "1.15.0-nightly (1d06284b74095113ec0d7537ca4f6d40e734010b)",
     "modelName": null
   }
 }

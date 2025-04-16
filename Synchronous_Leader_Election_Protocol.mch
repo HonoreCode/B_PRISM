@@ -31,7 +31,7 @@ OPERATIONS
 pick(prob) =
 //P = 1/K**N
 PRE prob:1..N --> 0..K-1 & ran(S)={choosing}
-THEN P:=prob; V:=prob; S:={i•i:1..N|i|->reading};
+THEN P:=prob; V:=prob; S:={i•i:1..N|i|->reading};U:={i•i:1..N|i|->TRUE};
 rounds:=rounds+1
 END;
 
@@ -46,10 +46,11 @@ END;
 
 read2 = 
 PRE ran(S)={reading} & c=N-1
-THEN P:={i•i:1..N|i|->0};
+THEN 
      S:={i•i:1..N|i|->deciding};
      U:={i•i:1..N|i|->bool(not(P(i)=V((i mod N)+1)) & U(i)=TRUE)};
      V:={i•i:1..N|i|->0};
+     P:={i•i:1..N|i|->0};
      c:=c
 END;
 
@@ -63,10 +64,6 @@ retry =
 PRE ran(S)={deciding} & ran(U)={FALSE}
 THEN S:={i•i:1..N|i|->choosing}; U:={i•i:1..N|i|->FALSE};
       V:={i•i:1..N|i|->0}; P:={i•i:1..N|i|->0}
-END;
-
-loop =
-PRE ran(S)={finishing}
-THEN S:={i•i:1..N|i|->finishing};c:=c
 END
+
 END

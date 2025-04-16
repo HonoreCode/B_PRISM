@@ -12,7 +12,6 @@
           "taskType": "MODEL_CHECKING",
           "searchStrategy": "MIXED_BF_DF",
           "options": [
-            "FIND_DEADLOCKS",
             "FIND_INVARIANT_VIOLATIONS"
           ],
           "selected": true
@@ -108,12 +107,60 @@
         },
         {
           "taskType": "SIMULATION",
-          "simulationPath": "SimBSynchronousLeader.json",
+          "simulationPath": "B.json",
           "type": "MONTE_CARLO_SIMULATION",
           "information": {
             "ENDING_PREDICATE": "ran(S)={finishing}",
             "MAX_STEPS_BEFORE_PROPERTY": 0,
             "EXECUTIONS": 500
+          }
+        },
+        {
+          "taskType": "CTL",
+          "description": "",
+          "stateLimit": -1,
+          "code": "AF{ran(S)={finishing}}",
+          "startState": "ALL_INITIAL_STATES",
+          "expectedResult": true,
+          "selected": true
+        },
+        {
+          "taskType": "LTL",
+          "description": "",
+          "stateLimit": -1,
+          "code": "F{ran(S)=finishing}",
+          "startState": "ALL_INITIAL_STATES",
+          "expectedResult": true,
+          "selected": true
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "SimBSynchronousLeader.json",
+          "type": "ESTIMATION",
+          "information": {
+            "ENDING_PREDICATE": "ran(S)={finishing}",
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 500,
+            "ESTIMATION_TYPE": "MEAN",
+            "EXPRESSION": "rounds",
+            "DESIRED_VALUE": 1.0,
+            "CHECKING_TYPE": "MAXIMUM",
+            "EPSILON": 0.5
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "SimBSynchronousLeader.json",
+          "type": "HYPOTHESIS_TEST",
+          "information": {
+            "ENDING_PREDICATE": "ran(S)={finishing}",
+            "SIGNIFICANCE": 0.05,
+            "PROBABILITY": 0.95,
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 500,
+            "PREDICATE": "rounds=1",
+            "HYPOTHESIS_CHECKING_TYPE": "TWO_TAILED",
+            "CHECKING_TYPE": "PREDICATE_FINAL"
           }
         }
       ],
@@ -151,7 +198,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-15T15:13:09.637809800Z",
+    "savedAt": "2025-04-16T09:02:40.489880700Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
