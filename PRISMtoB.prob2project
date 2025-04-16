@@ -168,6 +168,9 @@
       "simulations": [
         {
           "path": "SimBSynchronousLeader.json"
+        },
+        {
+          "path": "SimBCrowdsProtocol.json"
         }
       ],
       "visBVisualisations": []
@@ -182,14 +185,49 @@
           "taskType": "MODEL_CHECKING",
           "searchStrategy": "MIXED_BF_DF",
           "options": [
-            "FIND_DEADLOCKS",
             "FIND_INVARIANT_VIOLATIONS"
           ],
           "selected": true
+        },
+        {
+          "taskType": "SIMULATION",
+          "id": "Positive test",
+          "simulationPath": "SimBCrowdsProtocol.json",
+          "type": "HYPOTHESIS_TEST",
+          "information": {
+            "ENDING_PREDICATE": "runCount=0 & new=TRUE",
+            "SIGNIFICANCE": 0.05,
+            "PROBABILITY": 0.068,
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 200,
+            "PREDICATE": "observe(0)>1",
+            "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
+            "CHECKING_TYPE": "PREDICATE_FINAL"
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "id": "False positive test",
+          "simulationPath": "SimBCrowdsProtocol.json",
+          "type": "HYPOTHESIS_TEST",
+          "information": {
+            "ENDING_PREDICATE": "runCount=0 & new=TRUE",
+            "SIGNIFICANCE": 0.005,
+            "PROBABILITY": 0.03,
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 200,
+            "PREDICATE": "dom(observe |>> {0}) /= {}",
+            "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
+            "CHECKING_TYPE": "PREDICATE_FINAL"
+          }
         }
       ],
       "ltlPatterns": [],
-      "simulations": [],
+      "simulations": [
+        {
+          "path": "SimBCrowdsProtocol.json"
+        }
+      ],
       "visBVisualisations": []
     }
   ],
@@ -198,7 +236,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-16T09:02:40.489880700Z",
+    "savedAt": "2025-04-16T15:06:23.650240400Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
