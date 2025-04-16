@@ -1,16 +1,23 @@
-MACHINE Synchronous_Leader_Election_Protocol
-SETS MODES={choosing,reading,deciding,finishing}
-/*
-CONSTANTS Na,K
 
-PROPERTIES Na:NATURAL & K:NATURAL
+/* This model is based upon : https://www.prismmodelchecker.org/casestudies/synchronous_leader.php
+The probabilistic parameters are represented as an uniform distribution on the SimB activation
+for the pick operation.
+
+
 */
-DEFINITIONS
-N==4;
-K==8
+MACHINE Synchronous_Leader_Election_Protocol
+SETS MODES={choosing,reading,deciding,finishing} /*@desc States of the process*/
 
-VARIABLES c,S,U,V,P,
-rounds
+DEFINITIONS
+N==4/*@desc number of process*/; 
+K==8 /*@desc range of probabilistic choice of the ID*/
+
+VARIABLES c/*@desc counter*/,
+      S/*@desc state map*/,
+      U/*@desc Has an unique ID*/,
+      V/*@desc ID to be sent to the neighbor*/,
+      P/*@desc ID of the process*/,
+      rounds/*@desc Expected number of rounds, used for statistical analysis*/
 
 INVARIANT c:1..N-1 &
       S:1..N --> MODES &
@@ -28,12 +35,12 @@ INITIALISATION
       rounds:=0
 OPERATIONS
 
-pick(prob) =
-//P = 1/K**N
-PRE prob:1..N --> 0..K-1 & ran(S)={choosing}
-THEN P:=prob; V:=prob; S:={i•i:1..N|i|->reading};U:={i•i:1..N|i|->TRUE};
+pick(IDs) =
+//Uniform distribution the ID choice in the PRISM model, 
+PRE IDs:1..N --> 0..K-1 & ran(S)={choosing}
+THEN P:=IDs; V:=IDs; S:={i•i:1..N|i|->reading};U:={i•i:1..N|i|->TRUE};
 rounds:=rounds+1
-END;
+END/*@desc Each process choose an ID randomly */;
 
 read1 =
 PRE ran(S)={reading} & c<N-1
@@ -42,7 +49,7 @@ THEN
       P:={i•i:dom(U|>{FALSE})|i|->0}\/{i•i:(1..N)\dom(U|>{FALSE})|i|->P(i)};
       V:={i•i:1..N|i|->V((i mod N)+1)};
       c:=c+1
-END;
+END/*@desc Each process read an ID and compare it to its*/;
 
 read2 = 
 PRE ran(S)={reading} & c=N-1
@@ -52,18 +59,18 @@ THEN
      V:={i•i:1..N|i|->0};
      P:={i•i:1..N|i|->0};
      c:=c
-END;
+END/*@desc Read and prepare to decide*/;
 
 done =
 PRE ran(S)={deciding} & TRUE:ran(U)
 THEN S:={i•i:1..N|i|->finishing}; U:={i•i:1..N|i|->FALSE};
       V:={i•i:1..N|i|->0}; P:={i•i:1..N|i|->0}
-END;
+END/*@desc A leader is elected*/;
 
 retry =
 PRE ran(S)={deciding} & ran(U)={FALSE}
 THEN S:={i•i:1..N|i|->choosing}; U:={i•i:1..N|i|->FALSE};
       V:={i•i:1..N|i|->0}; P:={i•i:1..N|i|->0}
-END
+END/*@desc No leader is elected, everyone pick a new value*/
 
 END
