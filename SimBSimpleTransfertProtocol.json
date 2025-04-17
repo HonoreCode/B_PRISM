@@ -1,0 +1,63 @@
+{
+  "activations": [
+    {
+      "id": "$initialise_machine",
+      "execute": "$initialise_machine",
+      "activating": [
+        "Start"
+      ]
+    },
+    {
+      "id": "Start",
+      "execute": "Start",
+      "after": "100",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "Send"
+      ]
+    },
+    {
+      "id": "Send",
+      "execute": "Send",
+      "after": "100",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "probabilisticVariables": {"next": {"try": "0.15", "sent": "0.7", "fail": "0.15"}},
+      "activating": [
+        "Send",
+        "Done",
+        "Retry"
+      ]
+    },
+    {
+      "id": "Done",
+      "execute": "Done",
+      "after": "100",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "Done"
+      ]
+    },
+    {
+      "id": "Retry",
+      "execute": "Retry",
+      "after": "100",
+      "activationKind": "single:max",
+      "transitionSelection": "uniform",
+      "activating": [
+        "Start"
+      ]
+    }
+  ],
+  "metadata": {
+    "fileType": "Simulation",
+    "formatVersion": 4,
+    "savedAt": "2025-04-17T08:19:00.036454300Z",
+    "creator": "User",
+    "proB2KernelVersion": "4.13.2-SNAPSHOT",
+    "proBCliVersion": "1.15.0-nightly (1d06284b74095113ec0d7537ca4f6d40e734010b)",
+    "modelName": null
+  }
+}

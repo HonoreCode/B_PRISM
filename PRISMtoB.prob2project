@@ -229,6 +229,26 @@
         }
       ],
       "visBVisualisations": []
+    },
+    {
+      "name": "simple_protocol_system",
+      "description": "",
+      "location": "simple_protocol_system.mch",
+      "lastUsedPreferenceName": "default",
+      "validationTasks": [
+        {
+          "taskType": "MODEL_CHECKING",
+          "searchStrategy": "MIXED_BF_DF",
+          "options": [
+            "FIND_DEADLOCKS",
+            "FIND_INVARIANT_VIOLATIONS"
+          ],
+          "selected": true
+        }
+      ],
+      "ltlPatterns": [],
+      "simulations": [],
+      "visBVisualisations": []
     }
   ],
   "requirements": [],
@@ -236,7 +256,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-16T15:06:23.650240400Z",
+    "savedAt": "2025-04-17T08:18:24.493349600Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
