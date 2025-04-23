@@ -5,7 +5,7 @@
     {
       "name": "Synchronous_Leader_Election_Protocol",
       "description": "",
-      "location": "Synchronous_Leader_Election_Protocol.mch",
+      "location": "synchronous leader election/Synchronous_Leader_Election_Protocol.mch",
       "lastUsedPreferenceName": "default",
       "validationTasks": [
         {
@@ -178,7 +178,7 @@
     {
       "name": "Crowds_protocol",
       "description": "",
-      "location": "Crowds_protocol.mch",
+      "location": "Crowds_protocol/Crowds_protocol.mch",
       "lastUsedPreferenceName": "default",
       "validationTasks": [
         {
@@ -233,7 +233,7 @@
     {
       "name": "simple_protocol_system",
       "description": "",
-      "location": "simple_protocol_system.mch",
+      "location": "simple_protocol/simple_protocol_system.mch",
       "lastUsedPreferenceName": "default",
       "validationTasks": [
         {
@@ -298,7 +298,7 @@
     {
       "name": "coin_toss_test",
       "description": "",
-      "location": "coin_toss_test.mch",
+      "location": "Coin_Toss/coin_toss_test.mch",
       "lastUsedPreferenceName": "default",
       "validationTasks": [
         {
@@ -362,7 +362,7 @@
       "ltlPatterns": [],
       "simulations": [
         {
-          "path": "SimbCoinToss.json"
+          "path": "Coin_Toss/SimbCoinToss.json"
         }
       ],
       "visBVisualisations": []
@@ -373,7 +373,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-23T08:35:03.749366200Z",
+    "savedAt": "2025-04-23T08:40:50.165404200Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
