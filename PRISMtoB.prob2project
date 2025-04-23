@@ -247,6 +247,7 @@
         },
         {
           "taskType": "SIMULATION",
+          "id": "sent in less than 5 steps",
           "simulationPath": "SimBSimpleTransfertProtocol.json",
           "type": "ESTIMATION",
           "information": {
@@ -264,16 +265,104 @@
           "taskType": "CTL",
           "description": "",
           "stateLimit": -1,
-          "code": "EF{test_counter>2}",
+          "code": "EF{test_counter>20}",
           "startState": "ALL_INITIAL_STATES",
           "expectedResult": true,
           "selected": true
+        },
+        {
+          "taskType": "SIMULATION",
+          "id": "never fail",
+          "simulationPath": "SimBSimpleTransfertProtocol.json",
+          "type": "ESTIMATION",
+          "information": {
+            "ENDING_PREDICATE": "state=sent",
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 10000,
+            "PREDICATE": "state/=fail",
+            "ESTIMATION_TYPE": "MEAN",
+            "DESIRED_VALUE": 0.82,
+            "CHECKING_TYPE": "PREDICATE_INVARIANT",
+            "EPSILON": 0.1
+          }
         }
       ],
       "ltlPatterns": [],
       "simulations": [
         {
           "path": "SimBSimpleTransfertProtocol.json"
+        }
+      ],
+      "visBVisualisations": []
+    },
+    {
+      "name": "coin_toss_test",
+      "description": "",
+      "location": "coin_toss_test.mch",
+      "lastUsedPreferenceName": "default",
+      "validationTasks": [
+        {
+          "taskType": "MODEL_CHECKING",
+          "searchStrategy": "MIXED_BF_DF",
+          "options": [
+            "FIND_DEADLOCKS",
+            "FIND_INVARIANT_VIOLATIONS"
+          ],
+          "selected": true
+        },
+        {
+          "taskType": "SIMULATION",
+          "id": "Monte Carlo",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 50
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "id": "Monte",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 50
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 50
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 10
+          }
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "SimbCoinToss.json",
+          "type": "MONTE_CARLO_SIMULATION",
+          "information": {
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "STEPS_PER_EXECUTION": 50,
+            "EXECUTIONS": 500
+          }
+        }
+      ],
+      "ltlPatterns": [],
+      "simulations": [
+        {
+          "path": "SimbCoinToss.json"
         }
       ],
       "visBVisualisations": []
@@ -284,7 +373,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-17T08:40:40.138464700Z",
+    "savedAt": "2025-04-23T08:35:03.749366200Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,

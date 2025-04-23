@@ -1,0 +1,26 @@
+{
+    "activations": [
+        {
+            "id": "$initialise_machine",
+            "execute": "$initialise_machine",
+            "activating" : "toss"
+        },
+        {
+            "id": "toss",
+            "execute": "toss",
+            "after": 10,
+            "probabilisticVariables": {"c": {"Heads": "1.0/RSQRT(state)", "Tails": "1.0-1.0/RSQRT(state)"}},
+            "activating" : "toss"
+        }
+    ]
+,
+  "metadata": {
+    "fileType": "Simulation",
+    "formatVersion": 4,
+    "savedAt": "2025-04-23T08:15:39.085846700Z",
+    "creator": "User",
+    "proB2KernelVersion": "4.13.2-SNAPSHOT",
+    "proBCliVersion": "1.15.0-nightly (1d06284b74095113ec0d7537ca4f6d40e734010b)",
+    "modelName": null
+  }
+}
