@@ -366,6 +366,16 @@
         }
       ],
       "visBVisualisations": []
+    },
+    {
+      "name": "SimpleProtocolSystemXTL",
+      "description": "",
+      "location": "simple_protocol/SimpleProtocolSystemXTL.P",
+      "lastUsedPreferenceName": "default",
+      "validationTasks": [],
+      "ltlPatterns": [],
+      "simulations": [],
+      "visBVisualisations": []
     }
   ],
   "requirements": [],
@@ -373,7 +383,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-23T08:40:50.165404200Z",
+    "savedAt": "2025-04-25T07:19:25.549641Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
