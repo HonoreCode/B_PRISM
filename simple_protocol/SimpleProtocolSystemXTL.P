@@ -1,0 +1,18 @@
+% XTL encoding of simple protocol from Slide 9 of 05-dtmc model checking slides
+
+start(s0).
+
+trans(start,s0,s1).
+trans(send_retry,s1,s1).
+trans(send_ok,s1,s3).
+trans(send_fail,s1,s2).
+trans(retry,s2,s0).
+
+prop(s1,try).
+prop(s2,fail).
+prop(s3,succ).
+
+% probabilities; not yet used by ProB:
+prob(send_retry,s1,s1,0.01).
+prob(send_ok,s1,s3,0.98).
+prob(send_fail,s1,s2,0.01).
