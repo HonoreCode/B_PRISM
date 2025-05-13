@@ -354,8 +354,8 @@
           "type": "MONTE_CARLO_SIMULATION",
           "information": {
             "MAX_STEPS_BEFORE_PROPERTY": 0,
-            "STEPS_PER_EXECUTION": 50,
-            "EXECUTIONS": 500
+            "EXECUTIONS": 500,
+            "STEPS_PER_EXECUTION": 50
           }
         }
       ],
@@ -376,6 +376,16 @@
       "ltlPatterns": [],
       "simulations": [],
       "visBVisualisations": []
+    },
+    {
+      "name": "Synchronous_Leader_Election_Protocol_Rewrited",
+      "description": "",
+      "location": "synchronous leader election/Synchronous_Leader_Election_Protocol_Rewrited.mch",
+      "lastUsedPreferenceName": "default",
+      "validationTasks": [],
+      "ltlPatterns": [],
+      "simulations": [],
+      "visBVisualisations": []
     }
   ],
   "requirements": [],
@@ -383,7 +393,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-04-25T07:19:25.549641Z",
+    "savedAt": "2025-05-13T11:40:11.677048500Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,

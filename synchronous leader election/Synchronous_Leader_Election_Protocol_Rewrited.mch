@@ -9,14 +9,14 @@ MACHINE Synchronous_Leader_Election_Protocol
 SETS MODES={choosing,reading,deciding,finishing} /*@desc States of the process*/
 
 DEFINITIONS
-N==4 /*@desc number of process*/; 
-K==8 /*@desc range of probabilistic choice of the ID*/
+N==4; 
+K==8 
 
-VARIABLES c/*@desc counter*/,
-      S/*@desc state map*/,
-      U/*@desc Has an unique ID*/,
-      V/*@desc ID to be sent to the neighbor*/,
-      P/*@desc ID of the process*/
+VARIABLES c,
+      S,
+      U,
+      V,
+      P
 
 INVARIANT c:1..N-1 &
       S:1..N --> MODES &
@@ -67,6 +67,10 @@ retry =
 PRE ran(S)={deciding} & ran(U)={FALSE}
 THEN S:={i•i:1..N|i|->choosing}; U:={i•i:1..N|i|->FALSE};
       V:={i•i:1..N|i|->0}; P:={i•i:1..N|i|->0}
-END/*@desc No leader is elected, everyone pick a new value*/
+END/*@desc No leader is elected, everyone pick a new value*/;
 
+loop =
+PRE ran(S)={finishing}
+THEN S:={i•i:1..N|i|->finishing}
+END
 END
