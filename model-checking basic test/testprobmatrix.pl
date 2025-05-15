@@ -1,33 +1,35 @@
 % Model checker for PCTL formulas
 % This is heavely based on PRISM model-checker, refer to the lecture 5 on https://www.prismmodelchecker.org/lectures/pmc/
+% for more informations.
+%
 % Some properties to verify :
 % ?- sat(prob_formula(sup,0.1,g(not(p(b)))),S).
 % ?- sat(prob_formula(eq,P,f(5,p(b))),S).
 % ?- sat(prob_formula(eq,P,u(not(p(a)),p(b))),S).
-% ?- sat(prob_formula(eq,P,u(not(p(a)),p(b))),S).
-
+% ?- sat(prob_formula(eq,P,u(not(p(a)),5,p(b))),S).
+%
 % You can compare the results to the prism model untiltestmodel1.prism along with the property file untiltestproperty.pctl
 
 :- use_module(library(lists),[append/2]).
 :- use_module(clpr,[{}/1]).
 
-start(s0).
+start(0).
 
-trans(s0,s2).
-trans(s0,s1).
-trans(s2,s4).
-trans(s2,s5).
-trans(s2,s3).
-trans(s1,s0).
-trans(s1,s3).
-trans(s5,s4).
-trans(s3,s3).
-trans(s2,s2).
-trans(s5,s5).
-trans(s4,s4).
+trans(0,2,0.9).
+trans(0,1,0.1).
+trans(2,4,0.5).
+trans(2,5,0.3).
+trans(2,3,0.1).
+trans(1,0,0.4).
+trans(1,3,0.6).
+trans(5,4,0.7).
+trans(3,3,1.0).
+trans(2,2,0.1).
+trans(5,5,0.3).
+trans(4,4,1.0).
 
-prop(s1,a).
-prop(s4,b).
+prop(1,a).
+prop(4,b).
 
 % Defining probability transition matrix
 prob_mat([
@@ -39,19 +41,11 @@ prob_mat([
     [0.0,0.0,0.0,0.0,0.7,0.3]
     ]).
 
-% Linking each state to its corresponding row in the probability matrix
-indexing(0,s0).
-indexing(1,s1).
-indexing(2,s2).
-indexing(3,s3).
-indexing(4,s4).
-indexing(5,s5).
-
 %##########################################################################
 
 % vector of elements verifying a formula
 phi_vect(Formula,Vect) :- 
-    phi_vect(Formula,Vect,[s0,s1,s2,s3,s4,s5]).
+    phi_vect(Formula,Vect,[0,1,2,3,4,5]).
 
 phi_vect(_,[],[]).
 phi_vect(Formula,[V|Vect],[E|States]) :- 
@@ -104,8 +98,7 @@ sat_not(not(F),E) :- sat(F,E).
 % - compare probability of the ctl formula starting from state E to P, using the Operator
 sat(prob_formula(Operator,P,Ctl_formula),E) :- 
     prob_calc(Ctl_formula,V),
-    indexing(N,E),
-    pos(V,N,P_phi),
+    pos(V,E,P_phi),
     against(P_phi,P,Operator).
 sat(not(prob_formula(Operator,P,Ctl_formula)),E) :-
     sat(prob_formula(not(Operator),P,Ctl_formula),E).
@@ -183,7 +176,7 @@ prob_until_bound(Mat,K_new,V_new,Syes,Sno):-
 
 % Precomputation for the until formula using table computation
 % Sno = S\Sat(E(F1 U F2)) in CTL
-prob0(F1,F2,Sno):-prob0(F1,F2,Sno,[s0,s1,s2,s3,s4,s5]).
+prob0(F1,F2,Sno):-prob0(F1,F2,Sno,[0,1,2,3,4,5]).
 
 prob0(_F1,_F2,[],[]).
 prob0(F1,F2,[I|Sno],[S|States]):-
@@ -193,7 +186,7 @@ prob0(F1,F2,[I|Sno],[S|States]):-
 :- table sub_prob0/3.
 
 sub_prob0(_F1,F2,S) :- sat(F2,S).
-sub_prob0(F1,F2,S):-sat(F1,S),trans(S,S2),sub_prob0(F1,F2,S2).
+sub_prob0(F1,F2,S):-sat(F1,S),trans(S,S2,_),sub_prob0(F1,F2,S2).
 
 % Second part of the precomputation reusing Sno
 prob1(F1,F2,Sno,Syes) :- prob1(F1,F2,Sno,Sno,Syes,0).
@@ -209,13 +202,11 @@ prob1(F1,F2,[0|Sno_explored],Sno,[I|Syes_explored],N) :-
 
 :- table sub_prob1/3.
 
-sub_prob1(_F1,Sno,N):-pos(Sno,N,1).
-sub_prob1(F1,Sno,N):-
-    indexing(N,S),
+sub_prob1(_F1,Sno,S):-pos(Sno,S,1).
+sub_prob1(F1,Sno,S):-
     sat(F1,S),
-    trans(S,S2),
-    indexing(N2,S2),
-    sub_prob1(F1,Sno,N2).
+    trans(S,S2,_),
+    sub_prob1(F1,Sno,S2).
 
 % Linear equation to solve
 linear_eq(Sno,Syes,V) :- 
