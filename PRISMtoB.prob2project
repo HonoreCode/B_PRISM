@@ -382,9 +382,29 @@
       "description": "",
       "location": "synchronous leader election/Synchronous_Leader_Election_Protocol_Rewrited.mch",
       "lastUsedPreferenceName": "default",
-      "validationTasks": [],
+      "validationTasks": [
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "synchronous leader election/SimBSynchronousLeader.json",
+          "type": "HYPOTHESIS_TEST",
+          "information": {
+            "SIGNIFICANCE": 0.01,
+            "PROBABILITY": 0.94,
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 1000,
+            "PREDICATE": "ran(S)={finishing}",
+            "ENDING_TIME": 40,
+            "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
+            "CHECKING_TYPE": "PREDICATE_FINAL"
+          }
+        }
+      ],
       "ltlPatterns": [],
-      "simulations": [],
+      "simulations": [
+        {
+          "path": "synchronous leader election/SimBSynchronousLeader.json"
+        }
+      ],
       "visBVisualisations": []
     }
   ],
@@ -393,7 +413,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-05-13T11:40:11.677048500Z",
+    "savedAt": "2025-05-20T14:33:36.056590200Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,

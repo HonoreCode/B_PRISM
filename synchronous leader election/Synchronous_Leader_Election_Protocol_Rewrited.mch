@@ -9,8 +9,8 @@ MACHINE Synchronous_Leader_Election_Protocol
 SETS MODES={choosing,reading,deciding,finishing} /*@desc States of the process*/
 
 DEFINITIONS
-N==4; 
-K==8 
+N==3; 
+K==4 
 
 VARIABLES c,
       S,
