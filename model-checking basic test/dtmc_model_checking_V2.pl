@@ -1,7 +1,8 @@
 :- use_module(clpr,[{}/1]).
 
 % Load a model
-:- [state_space_to_LTS.pl].
+%:- ['models\\state_space_to_LTS.pl'].
+:- ['models\\simplemodelloop'].
 %****************************************
 %PCTL Model-checking
 sat(Formula):-start(E),sat(Formula,E).
@@ -35,7 +36,17 @@ sat(prob_formula(Operator,P,Ctl_formula),E) :-
 sat(not(prob_formula(Operator,P,Ctl_formula)),E) :-
     sat(prob_formula(not(Operator),P,Ctl_formula),E).
 
-% Comparing different formulas using a specific operator
+% Always bounded formula, we use the dual probabilistic event of f(K,not(F))
+sat(prob_formula(Operator,P,g(K,F)),E) :-
+    Q is 1-P,
+    sat(not(prob_formula(Operator,Q,f(K,not(F)))),E).
+
+% Always formula
+sat(prob_formula(Operator,P,g(F)),E) :-
+    Q is 1-P,
+    sat(not(prob_formula(Operator,Q,f(not(F)))),E).
+
+% Compare different formulas using a specific operator
 against(P_phi,P,eq) :- P_phi = P.
 against(P_phi,P,inf) :- P_phi =< P.
 against(P_phi,P,sup) :- P_phi >= P.
@@ -47,26 +58,22 @@ against(P_phi,P,not(sinf)) :- P_phi >= P.
 against(P_phi,P,not(ssup)) :- P_phi =< P.
 
 % Next formula
-% TODO: rewrite it starting by searching the possible transition first,
-% rather than the states verifying F
 prob_calc(x(F),E,P_phi) :-
     findall(S,(state(S),sat(F,S)),List_S),
     add_prob(List_S,E,P_phi).
 
 % Until Bounded formula
-% TODO : improve efficency by avoiding doing the same calculus multiple times
 prob_calc(u(_F,0,G),E,P_phi) :- 
     (sat(G,E) -> P_phi=1.0;
     P_phi=0.0).
-prob_calc(u(_F,K,G),E,1.0) :- K>0,sat(G,E).
-prob_calc(u(F,K,G),E,0.0) :- K>0,sat(not(or(F,G)),E).
 prob_calc(u(F,K_new,G),E,P_phi) :- 
     K_new > 0,
     state(E),
-    sat(and(F,not(G)),E),
-    K is K_new -1 ,
+    (sat(G,E) -> P_phi=1.0 ;
+    sat(not(F),E) -> P_phi=0.0;
+    (K is K_new -1 ,
     findall(S,trans(E,S,_),List_S),
-    add_prob_prime(P_phi,List_S,E,F,G,K).
+    add_prob_prime(P_phi,List_S,E,F,G,K))).
 
 % Until formula 
 % For this formula we have to calculate the probability for
@@ -76,6 +83,64 @@ prob_calc(u(F,G),E,P_phi) :-
     state(E),
     (find_prob_u(List_S,P_vect,E,P) -> P_phi=P;
     P_phi=0.0).
+
+% Eventually-bounded formula
+prob_calc(f(K,F),E,P_phi) :-
+    prob_calc(u(true,K,F),E,P_phi).
+
+% Eventually formula
+prob_calc(f(F),E,P_phi) :-
+    prob_calc(u(true,F),E,P_phi).
+
+
+%**********************************************************
+% EXPERIMENTAL, USE AT YOUR OWN RISK
+% dynamic state exploration to compare probabilities
+
+:- dynamic explorex/1.
+:- dynamic exploretrace/1.
+
+prob_calc_sup(x(F),E,P_phi) :- 
+    retractall(explorex(_)),
+    {P>=P_phi},
+    prob_calc_sup_sub(x(F),E,P).
+
+prob_calc_sup(u(F,K,G),E,P_phi) :- 
+    retractall(exploretrace(_)),
+    {P>=P_phi},
+    prob_calc_sup_gen(u(F,K,G),E,P).
+
+prob_calc_sup_sub(x(_F),_E,0.0).
+prob_calc_sup_sub(x(F),E,P_new) :-
+    state(S),
+    (not(explorex(S)) ->
+    (sat(F,S),
+    trans(E,S,P_trans),
+    assert(explorex(S)),
+    prob_calc_sup_sub(x(F),E,P),
+    P_new is P+P_trans);
+    fail).
+
+prob_calc_sup_gen(u(_F,_K,_G),_E,0.0).
+prob_calc_sup_gen(u(F,K,G),E,P_new) :- 
+    prob_calc_sup_test(F,K,G,E,P_trace,Trace),
+    (not(exploretrace(Trace)) ->
+    (prob_calc_sup_gen(u(F,K,G),E,P),
+    assert(exploretrace(Trace)),
+    P_new is P_trace + P)).
+
+prob_calc_sup_test(_F,_K,G,E,1.0,[E]) :-
+    sat(G,E),!.
+prob_calc_sup_test(F,K_new,G,E,P_new,[E|Trace]) :-
+    sat(F,E),
+    state(S),
+    K_new>0,
+    trans(E,S,P_trans),
+    K is K_new -1,
+    prob_calc_sup_test(F,K,G,S,P,Trace),
+    P_new is P*P_trans.
+
+%*******************************************************
 
 % probability sum for the next formula
 add_prob([],_,0.0).
@@ -88,10 +153,10 @@ add_prob([State|List_States],E,P_phi_new) :-
 % probability sum for the bounded until formula
 add_prob_prime(0.0,[],_,_,_,_).
 add_prob_prime(P_phi_new,[S|List_S],E,F,G,K) :-
-    trans(E,S,P),
+    trans(E,S,P_trans),
     prob_calc(u(F,K,G),S,P_mat),
     add_prob_prime(P_phi,List_S,E,F,G,K),
-    P_phi_new is P*P_mat + P_phi.
+    P_phi_new is P_trans*P_mat + P_phi.
    
 % 1rst precomputation for the until formula
 :- table prob0/3.
