@@ -1,10 +1,21 @@
+%###############################################
+
+% This is a model-checker verifying Probabilistic Computation
+% Tree Logic (PCTL) formulas over Discrete-Time Markov Chains (DTMC)
+
+% Working on XSB prolog 3.8
+
+%###############################################
+
+:- module(dtmc_model_checking_XSB,[sat/2]).
 :- use_module(clpr,[{}/1]).
 
-% Load a model
-%:- ['models\\state_space_to_LTS.pl'].
-:- ['models\\simplemodelloop'].
-%****************************************
+:- add_lib_dir(('models')).
+:- use_module(translate_model_XSB,[start/1,prop/2,state/1,trans/3]).
+
 %PCTL Model-checking
+
+
 sat(Formula):-start(E),sat(Formula,E).
 
 % Classic cases
@@ -28,8 +39,6 @@ sat_not(not(F),E) :- sat(F,E).
 
 % Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
 % E is a state.
-% TODO : change code if operator isn't =. It isn't necessary to caluclate the probability precisely if we
-% just want to compare
 sat(prob_formula(Operator,P,Ctl_formula),E) :- 
     prob_calc(Ctl_formula,E,P_phi),
     against(P_phi,P,Operator).
@@ -94,11 +103,11 @@ prob_calc(f(F),E,P_phi) :-
 
 
 %**********************************************************
-% EXPERIMENTAL, USE AT YOUR OWN RISK
+% EXPERIMENTAL, WORKING BUT NOT EFFICIENT YET
 % dynamic state exploration to compare probabilities
 
 :- dynamic explorex/1.
-:- dynamic exploretrace/1.
+:- dynamic prob_current/1.
 
 prob_calc_sup(x(F),E,P_phi) :- 
     retractall(explorex(_)),
@@ -106,9 +115,9 @@ prob_calc_sup(x(F),E,P_phi) :-
     prob_calc_sup_sub(x(F),E,P).
 
 prob_calc_sup(u(F,K,G),E,P_phi) :- 
-    retractall(exploretrace(_)),
-    {P>=P_phi},
-    prob_calc_sup_gen(u(F,K,G),E,P).
+    retractall(prob_current(_)),
+    assert(prob_current(0.0)),
+    prob_calc_sup_sub(u(F,K,G),E,P_phi,1.0).
 
 prob_calc_sup_sub(x(_F),_E,0.0).
 prob_calc_sup_sub(x(F),E,P_new) :-
@@ -121,24 +130,20 @@ prob_calc_sup_sub(x(F),E,P_new) :-
     P_new is P+P_trans);
     fail).
 
-prob_calc_sup_gen(u(_F,_K,_G),_E,0.0).
-prob_calc_sup_gen(u(F,K,G),E,P_new) :- 
-    prob_calc_sup_test(F,K,G,E,P_trace,Trace),
-    (not(exploretrace(Trace)) ->
-    (prob_calc_sup_gen(u(F,K,G),E,P),
-    assert(exploretrace(Trace)),
-    P_new is P_trace + P)).
-
-prob_calc_sup_test(_F,_K,G,E,1.0,[E]) :-
-    sat(G,E),!.
-prob_calc_sup_test(F,K_new,G,E,P_new,[E|Trace]) :-
-    sat(F,E),
+prob_calc_sup_sub(u(F,K_new,G),E,P_phi,P_trace) :-
+    sat(G,E) ->
+    (prob_current(P),
+    P_new is P+P_trace,
+    retract(prob_current(P)),
+    assert(prob_current(P_new)),
+    P_new >= P_phi);
+    (K_new > 0,
     state(S),
-    K_new>0,
     trans(E,S,P_trans),
+    sat(F,S),
     K is K_new -1,
-    prob_calc_sup_test(F,K,G,S,P,Trace),
-    P_new is P*P_trans.
+    P_trace_new = P_trace*P_trans,
+    prob_calc_sup_sub(u(F,K,G),S,P_phi,P_trace_new)).
 
 %*******************************************************
 

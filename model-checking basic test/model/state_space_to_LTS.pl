@@ -1,9 +1,17 @@
-:- use_module(clpr,[{}/1]).
-
 %**************************************
-% We load the model
-% Here the model is issued from a B-model using ProB's reachability analysis
-:- [slep_state_space].
+% Module used to load the interesting parts from a B model translated
+% into Prolog using ProB's reachability analysis, and to assign 
+% probabilities to each transition
+
+%*************************************
+
+:- module(state_space_to_LTS,[start_big/1,prop_big/2,state_big/1,trans_big/3]).
+
+% Uncomment if you use XSB
+%:- use_module(usermod(slep_state_space),[packed_visited_expression/2,transition/4]).
+
+% Uncomment if you use SICStus
+:- consult(slep_state_space).
 
 %**************************************
 % Formulas to try on :
@@ -16,11 +24,11 @@
 
 %**************************************
 
-% Definition of the labelled transition system from the state space
+% Definition of the Probabilistic labelled transition system from the state space
 % THIS PART MAY DEPEND ON THE MODEL
-start(0).
+start_big(0).
 
-prop(E,elect) :- 
+prop_big(E,elect) :- 
 packed_visited_expression(
     E,
     '$bind_lst'(_,
@@ -31,14 +39,14 @@ packed_visited_expression(
         packed_node((4,'$fd_MODES4'),0,empty,empty)))),_,_,_)
         )).
 
-trans(S1,S2,0.000244140625) :- 
+trans_big(S1,S2,0.000244140625) :- 
     transition(S1,pick(_),_,S2). 
 
-trans(S1,S2,1.0) :- 
+trans_big(S1,S2,1.0) :- 
     transition(S1,read1,_,S2);
     transition(S1,read2,_,S2);
     transition(S1,done,_,S2);
     transition(S1,retry,_,S2);
     transition(S1,loop,_,S2).
 
-state(E):-packed_visited_expression(E,_).
+state_big(E):-packed_visited_expression(E,_).
