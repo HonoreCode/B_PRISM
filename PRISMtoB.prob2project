@@ -220,6 +220,15 @@
             "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
             "CHECKING_TYPE": "PREDICATE_FINAL"
           }
+        },
+        {
+          "taskType": "MODEL_CHECKING",
+          "searchStrategy": "MIXED_BF_DF",
+          "options": [
+            "FIND_DEADLOCKS",
+            "IGNORE_OTHER_ERRORS"
+          ],
+          "selected": true
         }
       ],
       "ltlPatterns": [],
@@ -413,7 +422,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-05-20T14:33:36.056590200Z",
+    "savedAt": "2025-06-02T15:20:28.919016800Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
