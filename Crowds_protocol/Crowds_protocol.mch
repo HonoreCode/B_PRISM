@@ -9,7 +9,7 @@ The SimB simulation was used to realise a hypothesis test for the "Positive" & t
 MACHINE Crowds_protocol
 DEFINITIONS
       TotalRuns == 3/*@desc Number of path reformulations*/;
-      CrowdSize == 10/*@desc Number of good people in the crowds*/
+      CrowdSize == 5/*@desc Number of good people in the crowds*/
   //Note that the parameter "Maxsize" is omitted, as operations can be parametrised in B 
 
 VARIABLES 

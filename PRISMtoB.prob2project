@@ -229,12 +229,27 @@
             "IGNORE_OTHER_ERRORS"
           ],
           "selected": true
+        },
+        {
+          "taskType": "SIMULATION",
+          "simulationPath": "Crowds_protocol/SimBCrowdsProtocol.json",
+          "type": "HYPOTHESIS_TEST",
+          "information": {
+            "SIGNIFICANCE": 0.01,
+            "PROBABILITY": 0.037,
+            "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 500,
+            "PREDICATE": "observe(0)>1",
+            "STEPS_PER_EXECUTION": 100,
+            "HYPOTHESIS_CHECKING_TYPE": "RIGHT_TAILED",
+            "CHECKING_TYPE": "PREDICATE_FINAL"
+          }
         }
       ],
       "ltlPatterns": [],
       "simulations": [
         {
-          "path": "SimBCrowdsProtocol.json"
+          "path": "Crowds_protocol/SimBCrowdsProtocol.json"
         }
       ],
       "visBVisualisations": []
@@ -422,7 +437,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-06-02T15:20:28.919016800Z",
+    "savedAt": "2025-06-06T08:31:37.816461100Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
