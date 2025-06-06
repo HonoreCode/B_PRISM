@@ -19,23 +19,23 @@
 sat(Formula):-start(E),sat(Formula,E).
 
 % Classic cases
-sat(true,_E).
-sat(false,_E):-fail.
-sat(p(Property),E) :- prop(E,Property).
-sat(and(F,G),E) :- sat(F,E), sat(G,E).
-sat(or(F,_G),E) :- sat(F,E).
-sat(or(_F,G),E) :- sat(G,E).
-sat(imp(F,G),E) :- sat(or(not(F),G),E).
-sat(not(F),E) :- prob_formula(_)\=F,sat_not(F,E).
-
 sat_not(false,_E).
 sat_not(true,_E) :- fail.
-sat_not(p(Property),E) :- not(prop(E,Property)).
+sat_not(p(Property),E) :- \+(prop(Property,E)).
 sat_not(and(F,_G),E) :- sat_not(F,E).
 sat_not(and(_F,G),E) :- sat_not(G,E).
 sat_not(or(F,G),E) :- sat_not(F,E),sat_not(G,E).
 sat_not(imp(F,G),E) :- sat(not(or(not(F),G)),E).
 sat_not(not(F),E) :- sat(F,E).
+
+sat(true,_E).
+sat(false,_E):-fail.
+sat(p(Property),E) :- prop(Property,E).
+sat(and(F,G),E) :- sat(F,E), sat(G,E).
+sat(or(F,_G),E) :- sat(F,E).
+sat(or(_F,G),E) :- sat(G,E).
+sat(imp(F,G),E) :- sat(or(not(F),G),E).
+sat(not(F),E) :- prob_formula(_,_,_)\=F,sat_not(F,E).
 
 % Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
 % E is a state.

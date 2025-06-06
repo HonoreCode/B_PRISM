@@ -50,16 +50,7 @@ module crowds
 	observe7:  [0..TotalRuns] init 0;
 	observe8:  [0..TotalRuns] init 0;
 	observe9:  [0..TotalRuns] init 0;
-	observe10: [0..TotalRuns] init 0;
-	observe11: [0..TotalRuns] init 0;
-	observe12: [0..TotalRuns] init 0;
-	observe13: [0..TotalRuns] init 0;
-	observe14: [0..TotalRuns] init 0;
-	observe15: [0..TotalRuns] init 0;
-	observe16: [0..TotalRuns] init 0;
-	observe17: [0..TotalRuns] init 0;
-	observe18: [0..TotalRuns] init 0;
-	observe19: [0..TotalRuns] init 0;
+
 	
 	[] launch -> (new'=true) & (runCount'=TotalRuns) & (launch'=false);
 	// Set up a new protocol instance
@@ -84,20 +75,7 @@ module crowds
 	//          forwarder randomly chooses the next forwarder.
 	//          Here, the identity of an honest forwarder is randomly
 	//          chosen *after* it has forwarded the message.
-	[] recordLast & CrowdSize=2 ->
-	        1/2 : (lastSeen'=0) & (recordLast'=false) & (run'=true) +
-	        1/2 : (lastSeen'=1) & (recordLast'=false) & (run'=true);
-	[] recordLast & CrowdSize=4 ->
-	        1/4 : (lastSeen'=0) & (recordLast'=false) & (run'=true) +
-	        1/4 : (lastSeen'=1) & (recordLast'=false) & (run'=true) +
-	        1/4 : (lastSeen'=2) & (recordLast'=false) & (run'=true) +
-	        1/4 : (lastSeen'=3) & (recordLast'=false) & (run'=true);
-	[] recordLast & CrowdSize=5 ->
-	        1/5 : (lastSeen'=0) & (recordLast'=false) & (run'=true) +
-	        1/5 : (lastSeen'=1) & (recordLast'=false) & (run'=true) +
-	        1/5 : (lastSeen'=2) & (recordLast'=false) & (run'=true) +
-	        1/5 : (lastSeen'=3) & (recordLast'=false) & (run'=true) +
-	        1/5 : (lastSeen'=4) & (recordLast'=false) & (run'=true);
+
 	[] recordLast & CrowdSize=10 ->
 	        1/10 : (lastSeen'=0) & (recordLast'=false) & (run'=true) +
 	        1/10 : (lastSeen'=1) & (recordLast'=false) & (run'=true) +
@@ -109,43 +87,6 @@ module crowds
 	        1/10 : (lastSeen'=7) & (recordLast'=false) & (run'=true) +
 	        1/10 : (lastSeen'=8) & (recordLast'=false) & (run'=true) +
 	        1/10 : (lastSeen'=9) & (recordLast'=false) & (run'=true);
-	[] recordLast & CrowdSize=15 ->
-	        1/15 : (lastSeen'=0)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=1)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=2)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=3)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=4)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=5)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=6)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=7)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=8)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=9)  & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=10) & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=11) & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=12) & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=13) & (recordLast'=false) & (run'=true) +
-	        1/15 : (lastSeen'=14) & (recordLast'=false) & (run'=true);
-	[] recordLast & CrowdSize=20 ->
-	        1/20 : (lastSeen'=0)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=1)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=2)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=3)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=4)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=5)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=6)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=7)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=8)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=9)  & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=10) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=11) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=12) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=13) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=14) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=15) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=16) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=17) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=18) & (recordLast'=false) & (run'=true) +
-	        1/20 : (lastSeen'=19) & (recordLast'=false) & (run'=true);
 	
 	// BAD MEMBERS
 	// Remember from whom the message was received and deliver
@@ -160,16 +101,6 @@ module crowds
 	[] lastSeen=7  & badObserve & observe7 <TotalRuns -> (observe7' =observe7 +1) & (deliver'=true) & (run'=true) & (badObserve'=false);
 	[] lastSeen=8  & badObserve & observe8 <TotalRuns -> (observe8' =observe8 +1) & (deliver'=true) & (run'=true) & (badObserve'=false);
 	[] lastSeen=9  & badObserve & observe9 <TotalRuns -> (observe9' =observe9 +1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=10 & badObserve & observe10<TotalRuns -> (observe10'=observe10+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=11 & badObserve & observe11<TotalRuns -> (observe11'=observe11+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=12 & badObserve & observe12<TotalRuns -> (observe12'=observe12+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=13 & badObserve & observe13<TotalRuns -> (observe13'=observe13+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=14 & badObserve & observe14<TotalRuns -> (observe14'=observe14+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=15 & badObserve & observe15<TotalRuns -> (observe15'=observe15+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=16 & badObserve & observe16<TotalRuns -> (observe16'=observe16+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=17 & badObserve & observe17<TotalRuns -> (observe17'=observe17+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=18 & badObserve & observe18<TotalRuns -> (observe18'=observe18+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
-	[] lastSeen=19 & badObserve & observe19<TotalRuns -> (observe19'=observe19+1) & (deliver'=true) & (run'=true) & (badObserve'=false);
 
 	// RECIPIENT
 	// Delivery to destination
