@@ -1,0 +1,1 @@
+to test the model checker, start a prolog instance in the "model-checking basic test" directory, load the testing file corresponding to your prolog implementation (e.g. "testing_SICS") and query ":- global_test."
