@@ -11,7 +11,7 @@
 
 %####################################################
 
-:- module(testing_XSB,[choose_model/1,global_test/0/*,test_loop/0,test_big/0*/]).
+:- module(testing_XSB,[choose_model/1,partial_test/0/*,test_loop/0,test_big/0*/]).
 
 :- use_module(dtmc_model_checking_XSB,[sat/2]).
 
@@ -89,4 +89,4 @@ test_big :-
 
 %***********************************************
 
-global_test :- test_loop,test_big.
+partial_test :- test_loop,test_big.
