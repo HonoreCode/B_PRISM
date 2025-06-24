@@ -1,7 +1,7 @@
 % Simple labelled transition model with a loop
 
 :- module(simplemodelloop,[start_loop/1,prop_loop/2,state_loop/1,trans_loop/3]).
-%:- export start_loop/1.
+
 %*******************************************************
 % Some formulas to try on :
 

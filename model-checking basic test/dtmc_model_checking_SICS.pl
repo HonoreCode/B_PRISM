@@ -61,10 +61,10 @@ against(P_phi,P,inf) :- P_phi =< P.
 against(P_phi,P,sup) :- P_phi >= P.
 against(P_phi,P,sinf) :- P_phi < P.
 against(P_phi,P,ssup) :- P_phi > P.
-against(P_phi,P,not(inf)) :- P_phi > P.
-against(P_phi,P,not(sup)) :- P_phi < P.
-against(P_phi,P,not(sinf)) :- P_phi >= P.
-against(P_phi,P,not(ssup)) :- P_phi =< P.
+against(P_phi,P,not(inf)) :- against(P_phi,P,ssup).
+against(P_phi,P,not(sup)) :- against(P_phi,P,sinf).
+against(P_phi,P,not(sinf)) :- against(P_phi,P,sup).
+against(P_phi,P,not(ssup)) :- against(P_phi,P,inf).
 
 % Next formula
 prob_calc(x(F),E,P_phi) :-
