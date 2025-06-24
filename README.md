@@ -1,4 +1,4 @@
-To test the model checker, start a prolog instance in the "model-checking basic test" directory, load the testing file corresponding to your prolog implementation (e.g. "testing_SICS") and query ":- global_test."
+To test the model checker, start a prolog instance in the "model-checking basic test" directory, load the testing file corresponding to your prolog implementation (e.g. "testing_SICS") and query "?- full_test." (with the crowds model) or "?- partial_test."
 
 ## PCTL syntax
 A PCTL formula is written as `sat(Formula,E)`, with `E` being a state and `Formula` being a probabilistic formula or a classic logical operator (`true`, `false`, `and(Formula1,Formula2)`, `or(Formula1,Formula2)`, `imp(Formula1,Formula2)`).

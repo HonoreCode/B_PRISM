@@ -9,7 +9,6 @@
 
 :- module(dtmc_model_checking_SICS,[sat/2,search_prob0/3,prob0/3,prob1/3,table_prob0/2,state/1]).
 :- use_module(library(clpr),[{}/1]).
-%:- use_module(library(mutdict)).
 
 :- use_module('models/translate_model_SICS',[start/1,prop/2,state/1,trans/3]).
 
