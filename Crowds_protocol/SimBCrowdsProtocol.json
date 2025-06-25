@@ -32,8 +32,13 @@
       "execute": "Is_a_good_member",
       "after": "10",
       "activationKind": "single:max",
+      "probabilisticVariables": {
+        "b": {
+          "FALSE": "0.167",
+          "TRUE": "0.833"
+        }
+      },
       "transitionSelection": "uniform",
-      "probabilisticVariables": {"b": {"TRUE": "0.909", "FALSE": "0.091"}},
       "activating": [
         "Record",
         "Eavesdrop"
@@ -44,8 +49,13 @@
       "execute": "Forward_or_deliver",
       "after": "10",
       "activationKind": "single:max",
+      "probabilisticVariables": {
+        "b": {
+          "FALSE": "0.2",
+          "TRUE": "0.8"
+        }
+      },
       "transitionSelection": "uniform",
-      "probabilisticVariables": {"b": {"TRUE": "0.8", "FALSE": "0.2"}},
       "activating": [
         "Is_a_good_member",
         "Deliver"
@@ -95,7 +105,7 @@
   "metadata": {
     "fileType": "Simulation",
     "formatVersion": 4,
-    "savedAt": "2025-04-16T09:22:22.549605800Z",
+    "savedAt": "2025-06-25T09:19:36.284751300Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": "1.15.0-nightly (1d06284b74095113ec0d7537ca4f6d40e734010b)",
