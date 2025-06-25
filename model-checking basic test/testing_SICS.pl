@@ -9,7 +9,7 @@
 %           parameters : N=4, K=8
 %           see http://www.prismmodelchecker.org/casestudies/synchronous_leader.php)
 
-%    - "crowds" is an even bigger model from Prism's Benchmark suite :
+%    - "crowds_5_3" is an even bigger model from Prism's Benchmark suite :
 %          (Crowds Protocol,
 %           parameters : PF=0.8, badC=0.167, TotalRuns=3, CrowdSize=5
 %           see http://www.prismmodelchecker.org/casestudies/crowds.php)
@@ -27,7 +27,7 @@
 
 %####################################################
 
-:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0/*,test_loop/0,test_big/0,test_crowds/3*/]).
+:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0/*,test_loop/0,test_big/0,test_crowds_5_3/3*/,test_crowds_5_3_positive/0]).
 
 :- use_module(dtmc_model_checking_SICS,[sat/2]).
 
@@ -41,7 +41,7 @@ compare_floats_list([E1|L1],[E2|L2]) :-
     compare_floats_list(L1,L2).
 
 approx_float(F1,F2):-
-    {F1 =< 0.00001 + F2};
+    {F1 =< 0.00001 + F2},
     {F2 =< 0.00001 + F1}.
 
 :- dynamic choose_model/1.
@@ -155,7 +155,7 @@ test_big_until_bounded :-
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish leader election until bounded formula checking. It took ~3d sec.~n \n',[T]).
+    format('Finish leader election until bounded formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[0.95703125,T]).
 
 % The leader will eventually be elected :
 test_big_until :-
@@ -171,7 +171,7 @@ test_big_until :-
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish leader election until formula checking. It took ~3d sec.~n \n',[T]).
+    format('Finish leader election until formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[1.0,T]).
 
 test_big :- 
     assert(choose_model(big)),
@@ -186,11 +186,11 @@ test_big :-
 
 %***********************************************
 
-% TESTS FOR THE CROWDS PROTOCOL MODEL
+% TESTS FOR THE CROWDS PROTOCOL MODEL WITH PAREMETERS 5 & 3
 
 % The adversary will eventually observe the real sender more than once
-test_crowds_positive :-
-    print('Begin crowds positive formula checking\n'),
+test_crowds_5_3_positive :-
+    print('Begin crowds_5_3 positive formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(positive))),0),
     (approx_float(P,0.13834) -> print('positive formula succeeds\n')
@@ -198,11 +198,11 @@ test_crowds_positive :-
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish crowds positive formula checking. It took ~3d sec.~n \n',[T]).
+    format('Finish crowds_5_3 positive formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]).
 
 % The adversary will eventually observe someone other than the real sender more than once
-test_crowds_false_positive :-
-    print('Begin crowds false positive formula checking\n'),
+test_crowds_5_3_false_positive :-
+    print('Begin crowds_5_3 false positive formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(false_positive))),0),
     (approx_float(P,0.05104) -> print('false positive formula succeeds\n')
@@ -210,11 +210,11 @@ test_crowds_false_positive :-
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish crowds false positive formula checking. It took ~3d sec.~n \n',[T]).
+    format('Finish crowds_5_3 false positive formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]).
 
 % The adversary will eventually observe the real sender (and only him) more than once
-test_crowds_confident :-
-    print('Begin crowds confident formula checking\n'),
+test_crowds_5_3_confident :-
+    print('Begin crowds_5_3 confident formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(confidence))),0),
     (approx_float(P,0.13834) -> print('confident formula succeeds\n')
@@ -222,19 +222,73 @@ test_crowds_confident :-
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish crowds confident formula checking. It took ~3d sec.~n \n',[T]).
+    format('Finish crowds_5_3 confident formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]).
 
-test_crowds :-
-    assert(choose_model(crowds)),
-    print('Begin crowds protocol model tests\n\n'),
+test_crowds_5_3 :-
+    assert(choose_model(crowds_5_3)),
+    print('Begin crowds_5_3 protocol model tests\n\n'),
     statistics(runtime,[T0|_]),
-    test_crowds_positive,
-    test_crowds_false_positive,
-    test_crowds_confident,
+    test_crowds_5_3_positive,
+    test_crowds_5_3_false_positive,
+    test_crowds_5_3_confident,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish crowds protocol tests. It took ~3d sec.~n \n\n',[T]),
-    retract(choose_model(crowds)).
+    format('Finish crowds_5_3 protocol tests. It took ~3d sec.~n \n\n',[T]),
+    retract(choose_model(crowds_5_3)).
+
+
+%#################################################################
+
+% TESTS FOR THE CROWDS PROTOCOL MODEL WITH PAREMETERS 10 & 3
+
+% The adversary will eventually observe the real sender more than once
+test_crowds_10_3_positive :-
+    print('Begin crowds_10_3 positive formula checking\n'),
+    statistics(runtime,[T0|_]),
+    sat(prob_formula(eq,P,f(p(positive))),0),
+    (approx_float(P,0.03679) -> print('positive formula succeeds\n')
+        ; print('positive formula fails\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 positive formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]).
+
+% The adversary will eventually observe someone other than the real sender more than once
+test_crowds_10_3_false_positive :-
+    print('Begin crowds_10_3 false positive formula checking\n'),
+    statistics(runtime,[T0|_]),
+    sat(prob_formula(eq,P,f(p(false_positive))),0),
+    (approx_float(P,0.01563) -> print('false positive formula succeeds\n')
+        ; print('false positive formula fails\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 false positive formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]).
+
+% The adversary will eventually observe the real sender (and only him) more than once
+test_crowds_10_3_confident :-
+    print('Begin crowds_10_3 confident formula checking\n'),
+    statistics(runtime,[T0|_]),
+    sat(prob_formula(eq,P,f(p(confidence))),0),
+    (approx_float(P,0.03679) -> print('confident formula succeeds\n')
+        ; print('confident formula fails\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 confident formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]).
+
+test_crowds_10_3 :-
+    assert(choose_model(crowds_10_3)),
+    print('Begin crowds_10_3 protocol model tests\n\n'),
+    statistics(runtime,[T0|_]),
+    test_crowds_10_3_positive,
+    test_crowds_10_3_false_positive,
+    test_crowds_10_3_confident,
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 protocol tests. It took ~3d sec.~n \n\n',[T]),
+    retract(choose_model(crowds_10_3)).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -242,4 +296,4 @@ test_crowds :-
 partial_test :- test_loop,test_big.
 
 % to do a full test, but remind that it may take long (around a minute and half)
-full_test :- test_loop,test_big,test_crowds.
+full_test :- test_loop,test_big,test_crowds_5_3,test_crowds_10_3.

@@ -191,7 +191,7 @@ prob_calc_u3(_S,[],0.0,[]).
 prob_calc_u3(S,[E|List_S],P_phi_new,[P|P_vect]) :-
     prob_calc_u3(S,List_S,P_phi,P_vect),
     (trans(S,E,P_trans) -> {P_phi_new = P*P_trans + P_phi}
-        ; {P_phi_new=P_phi}
+        ; P_phi_new=P_phi
     ).
  
 find_prob_u([E],[P],E,P).

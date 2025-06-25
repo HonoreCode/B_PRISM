@@ -16,7 +16,7 @@
 
 %*************************************
 
-:- module(crowds_5_3_to_LTS_SICS,[start_crowds/1,prop_crowds/2,state_crowds/1,trans_crowds/3]).
+:- module(crowds_5_3_to_LTS_SICS,[start_crowds_5_3/1,prop_crowds_5_3/2,state_crowds_5_3/1,trans_crowds_5_3/3]).
 
 :- consult(slep_state_space_crowds53).
 
@@ -33,9 +33,9 @@
 
 % Definition of the Probabilistic labelled transition system from the state space
 % THIS PART MAY DEPEND ON THE MODEL
-start_crowds(0).
+start_crowds_5_3(0).
 
-prop_crowds(positive,E) :- 
+prop_crowds_5_3(positive,E) :- 
    packed_visited_expression(
     E,'$bind_lst'(_,l3(_,_,_,l3(_,_,_,l3(
         '$avl_packed'(packed_node((_,_),_,packed_node((0,X),_,_,_),_))
@@ -43,7 +43,7 @@ prop_crowds(positive,E) :-
    ),
     X>1.
 
-prop_crowds(false_positive,E) :-
+prop_crowds_5_3(false_positive,E) :-
     packed_visited_expression(
         E,'$bind_lst'(_,l3(_,_,_,l3(_,_,_,l3(
         '$avl_packed'(
@@ -61,7 +61,7 @@ prop_crowds(false_positive,E) :-
     ;X4>1
     ).
 
-prop_crowds(confidence,E) :- 
+prop_crowds_5_3(confidence,E) :- 
     packed_visited_expression(
         E,'$bind_lst'(_,l3(_,_,_,l3(_,_,_,l3(
         '$avl_packed'(
@@ -78,26 +78,26 @@ prop_crowds(confidence,E) :-
     X3=<1,
     X4=<1.
 
-trans_crowds(S1,S2,0.833) :- 
+trans_crowds_5_3(S1,S2,0.833) :- 
     transition(S1,'Is_a_good_member'(pred_true),_,S2). 
 
-trans_crowds(S1,S2,0.167) :-
+trans_crowds_5_3(S1,S2,0.167) :-
     transition(S1,'Is_a_good_member'(pred_false),_,S2). 
 
-trans_crowds(S1,S2,0.8) :- 
+trans_crowds_5_3(S1,S2,0.8) :- 
     transition(S1,'Forward_or_deliver'(pred_true),_,S2). 
 
-trans_crowds(S1,S2,0.2) :-
+trans_crowds_5_3(S1,S2,0.2) :-
     transition(S1,'Forward_or_deliver'(pred_false),_,S2). 
 
-trans_crowds(S1,S2,0.2) :-
+trans_crowds_5_3(S1,S2,0.2) :-
     transition(S1,'Record'(_),_,S2).  
 
-trans_crowds(S1,S2,1.0) :- 
+trans_crowds_5_3(S1,S2,1.0) :- 
     (transition(S1,'New_protocol',_,S2)
     ; transition(S1,'Start_protocol',_,S2)
     ; transition(S1,'Eavesdrop',_,S2)
     ; transition(S1,'Deliver',_,S2)
     ; transition(S1,'Restart',_,S2)).
 
-state_crowds(E):-packed_visited_expression(E,_).
+state_crowds_5_3(E):-packed_visited_expression(E,_).
