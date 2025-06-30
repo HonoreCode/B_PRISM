@@ -249,11 +249,16 @@
           "taskType": "SIMULATION",
           "id": "thetask",
           "simulationPath": "Crowds_protocol/SimBCrowdsProtocol.json",
-          "type": "MONTE_CARLO_SIMULATION",
+          "type": "HYPOTHESIS_TEST",
           "information": {
+            "SIGNIFICANCE": 1.0E-4,
+            "PROBABILITY": 0.13834,
             "MAX_STEPS_BEFORE_PROPERTY": 0,
+            "EXECUTIONS": 500,
+            "PREDICATE": "observe(0)>1",
             "STEPS_PER_EXECUTION": 100,
-            "EXECUTIONS": 1000
+            "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
+            "CHECKING_TYPE": "PREDICATE_FINAL"
           }
         }
       ],
@@ -448,7 +453,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-06-25T08:23:41.133918200Z",
+    "savedAt": "2025-06-25T15:05:06.852590200Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
