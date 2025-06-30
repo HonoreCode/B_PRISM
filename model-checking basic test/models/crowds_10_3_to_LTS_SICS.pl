@@ -102,26 +102,14 @@ prop_crowds_10_3(confidence,E) :-
     X9=<1.
     
 
-trans_crowds_10_3(S1,S2,0.909) :- 
-    transition(S1,'Is_a_good_member'(pred_true),_,S2). 
-
-trans_crowds_10_3(S1,S2,0.091) :-
-    transition(S1,'Is_a_good_member'(pred_false),_,S2). 
-
-trans_crowds_10_3(S1,S2,0.8) :- 
-    transition(S1,'Forward_or_deliver'(pred_true),_,S2). 
-
-trans_crowds_10_3(S1,S2,0.2) :-
-    transition(S1,'Forward_or_deliver'(pred_false),_,S2). 
-
-trans_crowds_10_3(S1,S2,0.1) :-
-    transition(S1,'Record'(_),_,S2).  
-
-trans_crowds_10_3(S1,S2,1.0) :- 
-    (transition(S1,'New_protocol',_,S2)
-    ; transition(S1,'Start_protocol',_,S2)
-    ; transition(S1,'Eavesdrop',_,S2)
-    ; transition(S1,'Deliver',_,S2)
-    ; transition(S1,'Restart',_,S2)).
+trans_crowds_10_3(S1,S2,P) :-
+    transition(S1,_,_,S2),
+    (transition(S1,'Is_a_good_member'(pred_true),_,S2) -> P is 0.909
+        ; transition(S1,'Is_a_good_member'(pred_false),_,S2) -> P is 0.091
+        ; transition(S1,'Forward_or_deliver'(pred_true),_,S2) -> P is 0.8
+        ; transition(S1,'Forward_or_deliver'(pred_false),_,S2) -> P is 0.2
+        ; transition(S1,'Record'(_),_,S2) -> P is 0.1
+        ; P is 1.0
+    ).
 
 state_crowds_10_3(E):-packed_visited_expression(E,_).
