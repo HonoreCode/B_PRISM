@@ -9,15 +9,17 @@
 %           parameters : N=4, K=8
 %           see http://www.prismmodelchecker.org/casestudies/synchronous_leader.php)
 
-%    - "crowds_5_3" is an even bigger model from Prism's Benchmark suite :
+%    - "crowds_5_3" is an bigger model from Prism's Benchmark suite :
 %          (Crowds Protocol,
 %           parameters : PF=0.8, badC=0.167, TotalRuns=3, CrowdSize=5
 %           see http://www.prismmodelchecker.org/casestudies/crowds.php)
 
+%    - "crowds_10_3" is an even bigger model from Prism's Benchmark suite :
+%          (Crowds Protocol,
+%           parameters : PF=0.8, badC=0.091, TotalRuns=3, CrowdSize=10
+%           see http://www.prismmodelchecker.org/casestudies/crowds.php)
 
-
-%   - If you want to test all the tree models, run "?- full_test.", but
-%   keep in mind that it will take at least a minute
+%   - If you want to test all the four models, run "?- full_test."
 
 %   - If you want to do a quick test on the first two models,
 %   run "?- partial_test."
@@ -27,22 +29,28 @@
 
 %####################################################
 
-:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0/*,test_loop/0,test_big/0,test_crowds_5_3/3*/,test_crowds_5_3_positive/0]).
+:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_crowds_5_3_positive/0]).
 
 :- use_module(dtmc_model_checking_SICS,[sat/2]).
 
 :- use_module(library(clpr),[{}/1]).
 
 % Small predicate used to compare two floats lists
+% Needed because there are approximation error using float representation
 compare_floats_list([],[]).
 compare_floats_list([E1|L1],[E2|L2]) :-
     {E2-0.000000000000005 =< E1},
     {E1 =< E2+0.000000000000005},
     compare_floats_list(L1,L2).
 
+
+% Small predicate used to compare two floats
+% Needed because there is a little difference 
+% between CLPFD equations solving and PRISM's one
 approx_float(F1,F2):-
     {F1 =< 0.00001 + F2},
     {F2 =< 0.00001 + F1}.
+
 
 :- dynamic choose_model/1.
 
@@ -292,8 +300,8 @@ test_crowds_10_3 :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% to test the first two models
+% to test the first two models (~1 sec)
 partial_test :- test_loop,test_big.
 
-% to do a full test, but remind that it may take long (around a minute and half)
+% to do a full test (~10 sec)
 full_test :- test_loop,test_big,test_crowds_5_3,test_crowds_10_3.
