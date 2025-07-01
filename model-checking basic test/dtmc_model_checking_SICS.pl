@@ -3,6 +3,9 @@
 % This is a model-checker verifying Probabilistic Computation
 % Tree Logic (PCTL) formulas over Discrete-Time Markov Chains (DTMC)
 
+% The algorithm was greatly based on the PRISM's one.
+% See http://www.prismmodelchecker.org/lectures/pmc/
+
 % Working on SICStus prolog 4.10
 
 %###############################################
