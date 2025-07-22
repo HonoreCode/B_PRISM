@@ -18,6 +18,10 @@
 %PCTL Model-checking
 
 
+% This term allow to handle nested formulas in case of dynamic model-checking
+:- dynamic node/1.
+
+
 sat(Formula):-start(E),sat(Formula,E).
 
 % Classic cases
@@ -43,8 +47,15 @@ sat(not(F),E) :- prob_formula(_,_,_)\=F,sat_not(F,E).
 % Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
 % E is a state.
 sat(prob_formula(Operator,P,Ctl_formula),E) :- 
-    prob_calc(Ctl_formula,E,P_phi),
-    against(P_phi,P,Operator).
+    Ctl_formula = u(F,G) ->
+        prob_calc(u(F,G),E,P_phi),
+        against(P_phi,P,Operator)
+    ;   Ctl_formula = f(G) -> 
+        sat(prob_formula(Operator,P,u(true,G)),E)
+    ; Ctl_formula = f(K,G) ->
+        sat(prob_formula(Operator,P,u(true,K,G)),E)
+    ;   sat_dynamic(prob_formula(Operator,P,Ctl_formula),E)
+    .
 sat(not(prob_formula(Operator,P,Ctl_formula)),E) :-
     sat(prob_formula(not(Operator),P,Ctl_formula),E).
 
@@ -58,37 +69,91 @@ sat(prob_formula(Operator,P,g(F)),E) :-
     Q is 1-P,
     sat(not(prob_formula(Operator,Q,f(not(F)))),E).
 
+% Check if the formula is nested 
+sat_dynamic(prob_formula(Operator,P,Ctl_formula),E) :-
+    (node(Node) -> 
+        New_Node is Node +1,
+        retract(node(Node)),
+        assert(node(New_Node)),
+        sat_dynamic_node(prob_formula(Operator,P,Ctl_formula),E,New_Node)
+    ;   assert(node(0)),
+        sat_dynamic_node(prob_formula(Operator,P,Ctl_formula),E,0),
+        retractall(node(_))        /*reinitialize nodes*/
+    ).
+
+% Use a different technic depending on the operator
+% This allow notably the calculation of a probability for the equal operator
+sat_dynamic_node(prob_formula(Operator,P,Ctl_formula),E,Node) :- 
+    ((Operator = sup ; Operator= ssup) ->
+        ground(P),
+        prob_calc(Ctl_formula,E,P,Operator,Node)
+
+    ;   Operator = eq ->
+            (ground(P) ->
+                prob_calc(Ctl_formula,E,P,eq,Node)
+
+            ;   (prob_calc(Ctl_formula,E,1.0,eq,Node) ->
+                    P=1.0
+                ;   prob_current(Node,P)))
+
+    ;   Operator = inf ->
+            ground(P),
+            \+(prob_calc(Ctl_formula,E,P,ssup,Node))
+
+    ;   Operator = sinf ->
+            ground(P),
+            \+(prob_calc(Ctl_formula,E,P,sup,Node))
+    ).
+
 % Compare different formulas using a specific operator
-against(P_phi,P,eq) :- P_phi = P.
-against(P_phi,P,inf) :- P_phi =< P.
-against(P_phi,P,sup) :- P_phi >= P.
-against(P_phi,P,sinf) :- P_phi < P.
-against(P_phi,P,ssup) :- P_phi > P.
+
+% For the equal comparison, we compare the results using epsilon precision in case 
+% of a given probability
+against(P_phi,P,eq) :- 
+    ground(P) ->
+        P_phi =< P + 0.00000000000000023,
+        P =< P_phi + 0.00000000000000023
+    ;   P = P_phi
+    .
+against(P_phi,P,inf) :- 
+    ground(P),
+    P_phi =< P + 0.00000000000000023.   % inferior
+against(P_phi,P,sup) :- 
+    ground(P),
+    P_phi >= P - 0.00000000000000023.   % superior
+against(P_phi,P,sinf) :- 
+    ground(P),
+    P_phi < P + 0.00000000000000023.   % strictly inferior
+against(P_phi,P,ssup) :- 
+    ground(P),
+    P_phi > P - 0.00000000000000023.   % strictly superior
 against(P_phi,P,not(inf)) :- against(P_phi,P,ssup).
 against(P_phi,P,not(sup)) :- against(P_phi,P,sinf).
 against(P_phi,P,not(sinf)) :- against(P_phi,P,sup).
 against(P_phi,P,not(ssup)) :- against(P_phi,P,inf).
 
 % Next formula
-prob_calc(x(F),E,P_phi) :-
-    findall(S,(state(S),sat(F,S)),List_S),
-    add_prob(List_S,E,P_phi).
+:- dynamic prob_current/2.
+
+prob_calc(x(F),E,P_phi,Operator,Node) :- 
+    retractall(prob_current(Node,_)),
+    assert(prob_current(Node,0.0)),
+    prob_calc_sub(x(F),E,P_phi,Operator,Node).
 
 % Until Bounded formula
-prob_calc(u(_F,0,G),E,P_phi) :- 
-    (sat(G,E) -> P_phi=1.0
-        ; P_phi=0.0
-    ).
-prob_calc(u(F,K_new,G),E,P_phi) :- 
-    K_new > 0,
-    state(E),
-    (sat(G,E) -> P_phi=1.0 
-        ; (sat(not(F),E) -> P_phi=0.0
-            ; K is K_new -1 ,
-            findall(S,trans(E,S,_),List_S),
-            add_prob_prime(P_phi,List_S,E,F,G,K)
-        )
-    ).
+prob_calc(u(F,K,G),E,P_phi,Operator,Node) :- 
+    retractall(prob_current(Node,_)),
+    assert(prob_current(Node,0.0)),
+    ((sat(F,E) ; sat(G,E)) ->
+        prob_calc_sub(u(F,K,G),E,P_phi,1.0,Operator,Node)
+    ;   against(0.0,P_phi,Operator))
+    .
+
+
+% Eventually-bounded formula
+prob_calc(f(K,F),E,P_phi,Operator) :-
+    prob_calc(u(true,K,F),E,P_phi,Operator).
+
 
 % Until formula 
 % For this formula we have to calculate the probability for
@@ -103,32 +168,34 @@ prob_calc(u(F,G),E,P_phi) :-
         ; P_phi=0.0
     ).
 
-% Eventually-bounded formula
-prob_calc(f(K,F),E,P_phi) :-
-    prob_calc(u(true,K,F),E,P_phi).
-
-% Eventually formula
-prob_calc(f(F),E,P_phi) :-
-    prob_calc(u(true,F),E,P_phi).
 
 %*******************************************************
 
-% probability sum for the next formula
-add_prob([],_,0.0).
-add_prob([State|List_States],E,P_phi_new) :- 
-    (trans(E,State,P) -> P_trans = P 
-        ; P_trans=0.0
-    ),
-    add_prob(List_States,E,P_phi),
-    P_phi_new is P_phi + P_trans.
+% recursion for the next formula
+prob_calc_sub(x(F),E,P_phi,Operator,Node) :-
+    trans(E,S,P),
+    sat(F,S),
+    prob_current(Node,Previous_P),
+    Current_prob is Previous_P +P,
+    retract(prob_current(Node,Previous_P)),
+    assert(prob_current(Node,Current_prob)),
+    against(Current_prob,P_phi,Operator).
 
-% probability sum for the bounded until formula
-add_prob_prime(0.0,[],_,_,_,_).
-add_prob_prime(P_phi_new,[S|List_S],E,F,G,K) :-
-    trans(E,S,P_trans),
-    prob_calc(u(F,K,G),S,P_mat),
-    add_prob_prime(P_phi,List_S,E,F,G,K),
-    P_phi_new is P_trans*P_mat + P_phi.
+% recursion for the bounded until formula
+prob_calc_sub(u(F,K_new,G),E,P_phi,P_trace,Operator,Node) :-
+    (sat(G,E) ->
+        prob_current(Node,P),
+        P_new is P+P_trace,
+        retract(prob_current(Node,P)),
+        assert(prob_current(Node,P_new)),
+        against(P_new,P_phi,Operator)
+        ;   K_new > 0,
+            trans(E,S,P_trans),
+            sat(F,S),
+            K is K_new -1,
+            P_trace_new is P_trace*P_trans,
+            prob_calc_sub(u(F,K,G),S,P_phi,P_trace_new,Operator,Node)
+    ).
    
 % 1rst precomputation for the until formula
 

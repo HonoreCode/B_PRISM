@@ -31,7 +31,7 @@
 
 :- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_crowds_5_3_positive/0]).
 
-:- use_module(dtmc_model_checking_SICS,[sat/2]).
+:- use_module(dtmc_model_checking_SICS,[sat/2,state/1]).
 
 :- use_module(library(clpr),[{}/1]).
 
@@ -64,8 +64,8 @@ test_loop_next :-
     print('Begin loop next formula checking\n'),
     statistics(runtime,[T0|_]),
     (sat(prob_formula(eq,0.9,x(prob_formula(eq,0.5,x(p(b))))),0) -> 
-        print('Next formula succeeds\n')
-        ; print('Next formula fails\n')
+        print('Next formula SUCCEEDS\n')
+        ; print('Next formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -79,8 +79,8 @@ test_loop_until :-
     (compare_floats_list(
         List_P,
         [0.783333333333334,0.0,0.870370370370371,0.0,1.0,0.944444444444445]
-        ) -> print('Until formula succeeds\n')
-            ; print('Until formula fails\n')
+        ) -> print('Until formula SUCCEEDS\n')
+            ; print('Until formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -90,12 +90,12 @@ test_loop_until :-
 test_loop_until_bounded :-
     print('Begin loop until bounded formula checking\n'),
     statistics(runtime,[T0|_]),
-    (findall(
-        P,
-        sat(prob_formula(eq,P,u(not(p(a)),5,p(b))),_S),
+    findall(P,(state(S),sat(prob_formula(eq,P,u(not(p(a)),5,p(b))),S)),List_P),
+    (compare_floats_list(
+        List_P,
         [0.73566,0.0,0.84304,0.0,1.0,0.90652]
-        ) -> print('Until-bounded formula succeeds\n')
-            ; print('Until-bounded formula fails\n')
+        ) -> print('until-bounded formula SUCCEEDS\n')
+            ; print('until-bounded formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -109,8 +109,8 @@ test_loop_always :-
         S,
         sat(prob_formula(sup,0.1,g(not(p(b)))),S),
         [0,1,2,3]
-        ) -> print('Always formula succeeds\n')
-            ; print('Always formula fails\n')
+        ) -> print('Always formula SUCCEEDS\n')
+            ; print('Always formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -120,12 +120,12 @@ test_loop_always :-
 test_loop_eventually :- 
     print('Begin loop eventually formula checking\n'),
     statistics(runtime,[T0|_]),
-    findall(P,sat(prob_formula(eq,P,f(5,p(b))),_S),List_P),
+    findall(P,(state(S),sat(prob_formula(eq,P,f(5,p(b))),S)),List_P),
     (compare_floats_list(
         List_P,
         [0.75978,0.28368,0.84304,0.0,1.0,0.90652]
-        ) -> print('Eventually formula succeeds\n')
-            ; print('Eventually formula fails\n')
+        ) -> print('Eventually formula SUCCEEDS\n')
+            ; print('Eventually formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -158,8 +158,8 @@ test_big_until_bounded :-
             eq,
             0.95703125,
             u(true,5,p(elect))),
-        0) -> print('Until-bounded formula succeeds\n')
-            ; print('Until-bounded formula fails\n')
+        0) -> print('Until-bounded formula SUCCEEDS\n')
+            ; print('Until-bounded formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -174,8 +174,8 @@ test_big_until :-
             eq,
             1.0,
             u(true,p(elect))),
-        0) -> print('Until formula succeeds\n')
-            ; print('Until formula fails\n')
+        0) -> print('Until formula SUCCEEDS\n')
+            ; print('Until formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -201,8 +201,8 @@ test_crowds_5_3_positive :-
     print('Begin crowds_5_3 positive formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(positive))),0),
-    (approx_float(P,0.13834) -> print('positive formula succeeds\n')
-        ; print('positive formula fails\n')
+    (approx_float(P,0.13834) -> print('positive formula SUCCEEDS\n')
+        ; print('positive formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -213,8 +213,8 @@ test_crowds_5_3_false_positive :-
     print('Begin crowds_5_3 false positive formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(false_positive))),0),
-    (approx_float(P,0.05104) -> print('false positive formula succeeds\n')
-        ; print('false positive formula fails\n')
+    (approx_float(P,0.05104) -> print('false positive formula SUCCEEDS\n')
+        ; print('false positive formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -225,8 +225,8 @@ test_crowds_5_3_confident :-
     print('Begin crowds_5_3 confident formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(confidence))),0),
-    (approx_float(P,0.13834) -> print('confident formula succeeds\n')
-        ; print('confident formula fails\n')
+    (approx_float(P,0.13834) -> print('confident formula SUCCEEDS\n')
+        ; print('confident formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -254,8 +254,8 @@ test_crowds_10_3_positive :-
     print('Begin crowds_10_3 positive formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(positive))),0),
-    (approx_float(P,0.03679) -> print('positive formula succeeds\n')
-        ; print('positive formula fails\n')
+    (approx_float(P,0.03679) -> print('positive formula SUCCEEDS\n')
+        ; print('positive formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -266,8 +266,8 @@ test_crowds_10_3_false_positive :-
     print('Begin crowds_10_3 false positive formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(false_positive))),0),
-    (approx_float(P,0.01563) -> print('false positive formula succeeds\n')
-        ; print('false positive formula fails\n')
+    (approx_float(P,0.01563) -> print('false positive formula SUCCEEDS\n')
+        ; print('false positive formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -278,8 +278,8 @@ test_crowds_10_3_confident :-
     print('Begin crowds_10_3 confident formula checking\n'),
     statistics(runtime,[T0|_]),
     sat(prob_formula(eq,P,f(p(confidence))),0),
-    (approx_float(P,0.03679) -> print('confident formula succeeds\n')
-        ; print('confident formula fails\n')
+    (approx_float(P,0.03679) -> print('confident formula SUCCEEDS\n')
+        ; print('confident formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
     T is T1-T0,
