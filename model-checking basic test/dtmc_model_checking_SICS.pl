@@ -138,7 +138,7 @@ against(P_phi,P,not(ssup)) :- against(P_phi,P,inf).
 prob_calc(x(F),E,P_phi,Operator,Node) :- 
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
-    prob_calc_sub(x(F),E,P_phi,Operator,Node).
+    prob_calc_sub(x(F),E,P_phi,Operator,Node),!.
 
 % Until Bounded formula
 prob_calc(u(F,K,G),E,P_phi,Operator,Node) :- 
@@ -146,7 +146,7 @@ prob_calc(u(F,K,G),E,P_phi,Operator,Node) :-
     assert(prob_current(Node,0.0)),
     ((sat(F,E) ; sat(G,E)) ->
         prob_calc_sub(u(F,K,G),E,P_phi,1.0,Operator,Node)
-    ;   against(0.0,P_phi,Operator))
+    ;   against(0.0,P_phi,Operator)),!
     .
 
 

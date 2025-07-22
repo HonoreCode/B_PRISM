@@ -71,6 +71,17 @@ test_loop_next :-
     T is T1-T0,
     format('Finish loop next formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_next_next :- 
+    print('Begin loop next next formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(prob_formula(eq,P,x(prob_formula(sup,0.4,x(prob_formula(inf,0.6,x(p(b))))))),0),P=1.0 -> 
+        print('Next next formula SUCCEEDS\n')
+        ; print('Next next formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop next next formula checking. It took ~3d sec.~n \n',[T]).
+
 % Testing a formula with the "until" operator for the loop model
 test_loop_until :- 
     print('Begin loop until formula checking\n'),
@@ -136,6 +147,7 @@ test_loop :-
     print('Begin loop model tests\n\n'),
     statistics(runtime,[T0|_]),
     test_loop_next,!,
+    test_loop_next_next,!,
     test_loop_until,!,
     test_loop_until_bounded,!,
     test_loop_always,!,
