@@ -161,7 +161,6 @@ prob_calc(f(K,F),E,P_phi,Operator) :-
 prob_calc(u(F,G),E,P_phi) :- 
     retractall(table_prob0(_,_)),
     retractall(table_prob1(_,_)),
-%    retractall(good_search(_C)),
     prob_calc_u1(F,G,List_S,P_vect),
     state(E),
     (find_prob_u(List_S,P_vect,E,P) -> P_phi=P

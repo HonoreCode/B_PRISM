@@ -181,12 +181,57 @@ test_big_until :-
     T is T1-T0,
     format('Finish leader election until formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[1.0,T]).
 
+% Specific tests for dynamic model-checking
+test_dynamic_ssup_7_02 :-
+    print('Begin dynamic model-checking for the big model with K=7, P=0.2 and ssup operator\n'),
+    statistics(runtime,[T0|_]),
+    (sat(prob_formula(ssup,0.2,u(true,7,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
+        ; print('Dynamic model-check FAILS\n')
+    ),!,
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish dynamic model-checking for the big model with K=7, P=0.2 and ssup operator. \n It took ~3d sec.~n \n',[T]).
+
+test_dynamic_inf_6_097 :-
+    print('Begin dynamic model-checking for the big model with K=6, P=0.97 and inf operator\n'),
+    statistics(runtime,[T0|_]),
+    (sat(prob_formula(inf,0.97,u(true,6,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
+        ; print('Dynamic model-check FAILS\n')
+    ),!,
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish dynamic model-checking for the big model with K=6, P=0.97 and inf operator. \n It took ~3d sec.~n \n',[T]).
+
+test_dynamic_eq_6_097 :-
+    print('Begin dynamic model-checking for the big model with K=6, P=0.95703125 and eq operator\n'),
+    statistics(runtime,[T0|_]),
+    (sat(prob_formula(eq,0.95703125,u(true,6,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
+        ; print('Dynamic model-check FAILS\n')
+    ),!,
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish dynamic model-checking for the big model with K=6, P=0.95703125 and eq operator. \n It took ~3d sec.~n \n',[T]).
+
+test_dynamic_fail :-
+    print('Begin dynamic fail model-checking for the big model with K=7, P=1.0 and ssup operator\n'),
+    statistics(runtime,[T0|_]),
+    (\+sat(prob_formula(ssup,1.0,u(true,7,p(elect))),0),retractall(dtmc_model_checking_SICS:node(_)) -> print('dynamic fail model-check SUCCEEDS\n')
+        ; print('Dynamic fail model-check FAILS\n')
+    ),!,
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish dynamic fail model-checking for the big model with K=7, P=1.0 and ssup operator. \n It took ~3d sec.~n \n',[T]).
+
 test_big :- 
     assert(choose_model(big)),
     print('Begin leader election model tests\n\n'),
     statistics(runtime,[T0|_]),
     test_big_until,!,
     test_big_until_bounded,!,
+    test_dynamic_ssup_7_02,!,
+    test_dynamic_inf_6_097,!,
+    test_dynamic_eq_6_097,!,
+    test_dynamic_fail,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish leader election model tests. It took ~3d sec.~n \n\n',[T]),
