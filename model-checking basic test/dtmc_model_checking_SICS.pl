@@ -32,7 +32,7 @@ sat_not(p(Property),E) :- \+(prop(Property,E)).
 sat_not(and(F,_G),E) :- sat_not(F,E).
 sat_not(and(_F,G),E) :- sat_not(G,E).
 sat_not(or(F,G),E) :- sat_not(F,E),sat_not(G,E).
-sat_not(imp(F,G),E) :- sat(not(or(not(F),G)),E).
+sat_not(implies(F,G),E) :- sat(not(or(not(F),G)),E).
 sat_not(not(F),E) :- sat(F,E).
 
 sat(true,_E).
@@ -41,96 +41,96 @@ sat(p(Property),E) :- prop(Property,E).
 sat(and(F,G),E) :- sat(F,E), sat(G,E).
 sat(or(F,_G),E) :- sat(F,E).
 sat(or(_F,G),E) :- sat(G,E).
-sat(imp(F,G),E) :- sat(or(not(F),G),E).
-sat(not(F),E) :- prob_formula(_,_,_)\=F,sat_not(F,E).
+sat(implies(F,G),E) :- sat(or(not(F),G),E).
+sat(not(F),E) :- probformula(_,_,_)\=F,sat_not(F,E).
 
 % Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
 % E is a state.
-sat(prob_formula(Operator,P,Ctl_formula),E) :- 
+sat(probformula(Operator,P,Ctl_formula),E) :- 
     Ctl_formula = u(F,G) ->
         prob_calc(u(F,G),E,P_phi),
         against(P_phi,P,Operator)
     ;   Ctl_formula = f(G) -> 
-        sat(prob_formula(Operator,P,u(true,G)),E)
-    ; Ctl_formula = f(K,G) ->
-        sat(prob_formula(Operator,P,u(true,K,G)),E)
-    ;   sat_dynamic(prob_formula(Operator,P,Ctl_formula),E)
+        sat(probformula(Operator,P,u(true,G)),E)
+    ; Ctl_formula = fk(K,G) ->
+        sat(probformula(Operator,P,uk(true,K,G)),E)
+    ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E)
     .
-sat(not(prob_formula(Operator,P,Ctl_formula)),E) :-
-    sat(prob_formula(not(Operator),P,Ctl_formula),E).
+sat(not(probformula(Operator,P,Ctl_formula)),E) :-
+    sat(probformula(not(Operator),P,Ctl_formula),E).
 
-% Always bounded formula, we use the dual probabilistic event of f(K,not(F))
-sat(prob_formula(Operator,P,g(K,F)),E) :-
+% Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
+sat(probformula(Operator,P,gk(K,F)),E) :-
     Q is 1-P,
-    sat(not(prob_formula(Operator,Q,f(K,not(F)))),E).
+    sat(not(probformula(Operator,Q,fk(K,not(F)))),E).
 
 % Always formula
-sat(prob_formula(Operator,P,g(F)),E) :-
+sat(probformula(Operator,P,g(F)),E) :-
     Q is 1-P,
-    sat(not(prob_formula(Operator,Q,f(not(F)))),E).
+    sat(not(probformula(Operator,Q,f(not(F)))),E).
 
 % Check if the formula is nested 
-sat_dynamic(prob_formula(Operator,P,Ctl_formula),E) :-
+sat_dynamic(probformula(Operator,P,Ctl_formula),E) :-
     (node(Node) -> 
         New_Node is Node +1,
         retract(node(Node)),
         assert(node(New_Node)),
-        sat_dynamic_node(prob_formula(Operator,P,Ctl_formula),E,New_Node)
+        sat_dynamic_node(probformula(Operator,P,Ctl_formula),E,New_Node)
     ;   assert(node(0)),
-        sat_dynamic_node(prob_formula(Operator,P,Ctl_formula),E,0),
+        sat_dynamic_node(probformula(Operator,P,Ctl_formula),E,0),
         retractall(node(_))        /*reinitialize nodes*/
     ).
 
 % Use a different technic depending on the operator
 % This allow notably the calculation of a probability for the equal operator
-sat_dynamic_node(prob_formula(Operator,P,Ctl_formula),E,Node) :- 
-    ((Operator = sup ; Operator= ssup) ->
+sat_dynamic_node(probformula(Operator,P,Ctl_formula),E,Node) :- 
+    ((Operator = greater ; Operator= strictly_greater) ->
         ground(P),
         prob_calc(Ctl_formula,E,P,Operator,Node)
 
-    ;   Operator = eq ->
+    ;   Operator = equal ->
             (ground(P) ->
-                prob_calc(Ctl_formula,E,P,eq,Node)
+                prob_calc(Ctl_formula,E,P,equal,Node)
 
-            ;   (prob_calc(Ctl_formula,E,1.0,eq,Node) ->
+            ;   (prob_calc(Ctl_formula,E,1.0,equal,Node) ->
                     P=1.0
                 ;   prob_current(Node,P)))
 
-    ;   Operator = inf ->
+    ;   Operator = less ->
             ground(P),
-            \+(prob_calc(Ctl_formula,E,P,ssup,Node))
+            \+(prob_calc(Ctl_formula,E,P,strictly_greater,Node))
 
-    ;   Operator = sinf ->
+    ;   Operator = strictly_less ->
             ground(P),
-            \+(prob_calc(Ctl_formula,E,P,sup,Node))
+            \+(prob_calc(Ctl_formula,E,P,greater,Node))
     ).
 
 % Compare different formulas using a specific operator
 
 % For the equal comparison, we compare the results using epsilon precision in case 
 % of a given probability
-against(P_phi,P,eq) :- 
+against(P_phi,P,equal) :- 
     ground(P) ->
         P_phi =< P + 0.00000000000000023,
         P =< P_phi + 0.00000000000000023
     ;   P = P_phi
     .
-against(P_phi,P,inf) :- 
+against(P_phi,P,less) :- 
     ground(P),
-    P_phi =< P + 0.00000000000000023.   % inferior
-against(P_phi,P,sup) :- 
+    P_phi =< P + 0.00000000000000023.   % less
+against(P_phi,P,greater) :- 
     ground(P),
-    P_phi >= P - 0.00000000000000023.   % superior
-against(P_phi,P,sinf) :- 
+    P_phi >= P - 0.00000000000000023.   % greater
+against(P_phi,P,strictly_less) :- 
     ground(P),
-    P_phi < P + 0.00000000000000023.   % strictly inferior
-against(P_phi,P,ssup) :- 
+    P_phi < P + 0.00000000000000023.   % strictly less
+against(P_phi,P,strictly_greater) :- 
     ground(P),
-    P_phi > P - 0.00000000000000023.   % strictly superior
-against(P_phi,P,not(inf)) :- against(P_phi,P,ssup).
-against(P_phi,P,not(sup)) :- against(P_phi,P,sinf).
-against(P_phi,P,not(sinf)) :- against(P_phi,P,sup).
-against(P_phi,P,not(ssup)) :- against(P_phi,P,inf).
+    P_phi > P - 0.00000000000000023.   % strictly_greater
+against(P_phi,P,not(less)) :- against(P_phi,P,strictly_greater).
+against(P_phi,P,not(greater)) :- against(P_phi,P,strictly_less).
+against(P_phi,P,not(strictly_less)) :- against(P_phi,P,sup).
+against(P_phi,P,not(strictly_greater)) :- against(P_phi,P,less).
 
 % Next formula
 :- dynamic prob_current/2.
@@ -141,18 +141,18 @@ prob_calc(x(F),E,P_phi,Operator,Node) :-
     prob_calc_sub(x(F),E,P_phi,Operator,Node),!.
 
 % Until Bounded formula
-prob_calc(u(F,K,G),E,P_phi,Operator,Node) :- 
+prob_calc(uk(F,K,G),E,P_phi,Operator,Node) :- 
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
     ((sat(F,E) ; sat(G,E)) ->
-        prob_calc_sub(u(F,K,G),E,P_phi,1.0,Operator,Node)
+        prob_calc_sub(uk(F,K,G),E,P_phi,1.0,Operator,Node)
     ;   against(0.0,P_phi,Operator)),!
     .
 
 
 % Eventually-bounded formula
-prob_calc(f(K,F),E,P_phi,Operator) :-
-    prob_calc(u(true,K,F),E,P_phi,Operator).
+prob_calc(fk(K,F),E,P_phi,Operator) :-
+    prob_calc(uk(true,K,F),E,P_phi,Operator).
 
 
 % Until formula 
@@ -181,7 +181,7 @@ prob_calc_sub(x(F),E,P_phi,Operator,Node) :-
     against(Current_prob,P_phi,Operator).
 
 % recursion for the bounded until formula
-prob_calc_sub(u(F,K_new,G),E,P_phi,P_trace,Operator,Node) :-
+prob_calc_sub(uk(F,K_new,G),E,P_phi,P_trace,Operator,Node) :-
     (sat(G,E) ->
         prob_current(Node,P),
         P_new is P+P_trace,
@@ -193,7 +193,7 @@ prob_calc_sub(u(F,K_new,G),E,P_phi,P_trace,Operator,Node) :-
             sat(F,S),
             K is K_new -1,
             P_trace_new is P_trace*P_trans,
-            prob_calc_sub(u(F,K,G),S,P_phi,P_trace_new,Operator,Node)
+            prob_calc_sub(uk(F,K,G),S,P_phi,P_trace_new,Operator,Node)
     ).
    
 % 1rst precomputation for the until formula

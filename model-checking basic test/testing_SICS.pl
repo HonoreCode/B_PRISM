@@ -63,7 +63,7 @@ approx_float(F1,F2):-
 test_loop_next :- 
     print('Begin loop next formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(prob_formula(eq,0.9,x(prob_formula(eq,0.5,x(p(b))))),0) -> 
+    (sat(probformula(equal,0.9,x(probformula(equal,0.5,x(p(b))))),0) -> 
         print('Next formula SUCCEEDS\n')
         ; print('Next formula FAILS\n')
     ),
@@ -74,7 +74,7 @@ test_loop_next :-
 test_loop_next_next :- 
     print('Begin loop next next formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(prob_formula(eq,P,x(prob_formula(sup,0.4,x(prob_formula(inf,0.6,x(p(b))))))),0),P=1.0 -> 
+    (sat(probformula(equal,P,x(probformula(greater,0.4,x(probformula(less,0.6,x(p(b))))))),0),P=1.0 -> 
         print('Next next formula SUCCEEDS\n')
         ; print('Next next formula FAILS\n')
     ),
@@ -86,7 +86,7 @@ test_loop_next_next :-
 test_loop_until :- 
     print('Begin loop until formula checking\n'),
     statistics(runtime,[T0|_]),
-    findall(P,sat(prob_formula(eq,P,u(not(p(a)),p(b))),_S),List_P),
+    findall(P,sat(probformula(equal,P,u(not(p(a)),p(b))),_S),List_P),
     (compare_floats_list(
         List_P,
         [0.783333333333334,0.0,0.870370370370371,0.0,1.0,0.944444444444445]
@@ -101,7 +101,7 @@ test_loop_until :-
 test_loop_until_bounded :-
     print('Begin loop until bounded formula checking\n'),
     statistics(runtime,[T0|_]),
-    findall(P,(state(S),sat(prob_formula(eq,P,u(not(p(a)),5,p(b))),S)),List_P),
+    findall(P,(state(S),sat(probformula(equal,P,uk(not(p(a)),5,p(b))),S)),List_P),
     (compare_floats_list(
         List_P,
         [0.73566,0.0,0.84304,0.0,1.0,0.90652]
@@ -118,7 +118,7 @@ test_loop_always :-
     statistics(runtime,[T0|_]),
     (findall(
         S,
-        sat(prob_formula(sup,0.1,g(not(p(b)))),S),
+        sat(probformula(greater,0.1,g(not(p(b)))),S),
         [0,1,2,3]
         ) -> print('Always formula SUCCEEDS\n')
             ; print('Always formula FAILS\n')
@@ -131,7 +131,7 @@ test_loop_always :-
 test_loop_eventually :- 
     print('Begin loop eventually formula checking\n'),
     statistics(runtime,[T0|_]),
-    findall(P,(state(S),sat(prob_formula(eq,P,f(5,p(b))),S)),List_P),
+    findall(P,(state(S),sat(probformula(equal,P,fk(5,p(b))),S)),List_P),
     (compare_floats_list(
         List_P,
         [0.75978,0.28368,0.84304,0.0,1.0,0.90652]
@@ -166,10 +166,10 @@ test_big_until_bounded :-
     print('Begin leader election until bounded formula checking\n'),
     statistics(runtime,[T0|_]),
     (sat(
-        prob_formula(
-            eq,
+        probformula(
+            equal,
             0.95703125,
-            u(true,5,p(elect))),
+            uk(true,5,p(elect))),
         0) -> print('Until-bounded formula SUCCEEDS\n')
             ; print('Until-bounded formula FAILS\n')
     ),
@@ -182,8 +182,8 @@ test_big_until :-
     print('Begin leader election until formula checking\n'),
     statistics(runtime,[T0|_]),
     (sat(
-        prob_formula(
-            eq,
+        probformula(
+            equal,
             1.0,
             u(true,p(elect))),
         0) -> print('Until formula SUCCEEDS\n')
@@ -194,45 +194,45 @@ test_big_until :-
     format('Finish leader election until formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[1.0,T]).
 
 % Specific tests for dynamic model-checking
-test_dynamic_ssup_7_02 :-
-    print('Begin dynamic model-checking for the big model with K=7, P=0.2 and ssup operator\n'),
+test_dynamic_strictly_greater_7_02 :-
+    print('Begin dynamic model-checking for the big model with K=7, P=0.2 and strictly_greater operator\n'),
     statistics(runtime,[T0|_]),
-    (sat(prob_formula(ssup,0.2,u(true,7,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
+    (sat(probformula(strictly_greater,0.2,uk(true,7,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
         ; print('Dynamic model-check FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish dynamic model-checking for the big model with K=7, P=0.2 and ssup operator. \n It took ~3d sec.~n \n',[T]).
+    format('Finish dynamic model-checking for the big model with K=7, P=0.2 and strictly_greater operator. \n It took ~3d sec.~n \n',[T]).
 
-test_dynamic_inf_6_097 :-
-    print('Begin dynamic model-checking for the big model with K=6, P=0.97 and inf operator\n'),
+test_dynamic_less_6_097 :-
+    print('Begin dynamic model-checking for the big model with K=6, P=0.97 and less operator\n'),
     statistics(runtime,[T0|_]),
-    (sat(prob_formula(inf,0.97,u(true,6,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
+    (sat(probformula(less,0.97,uk(true,6,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
         ; print('Dynamic model-check FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish dynamic model-checking for the big model with K=6, P=0.97 and inf operator. \n It took ~3d sec.~n \n',[T]).
+    format('Finish dynamic model-checking for the big model with K=6, P=0.97 and less operator. \n It took ~3d sec.~n \n',[T]).
 
-test_dynamic_eq_6_097 :-
-    print('Begin dynamic model-checking for the big model with K=6, P=0.95703125 and eq operator\n'),
+test_dynamic_equal_6_097 :-
+    print('Begin dynamic model-checking for the big model with K=6, P=0.95703125 and equal operator\n'),
     statistics(runtime,[T0|_]),
-    (sat(prob_formula(eq,0.95703125,u(true,6,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
+    (sat(probformula(equal,0.95703125,uk(true,6,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
         ; print('Dynamic model-check FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish dynamic model-checking for the big model with K=6, P=0.95703125 and eq operator. \n It took ~3d sec.~n \n',[T]).
+    format('Finish dynamic model-checking for the big model with K=6, P=0.95703125 and equal operator. \n It took ~3d sec.~n \n',[T]).
 
 test_dynamic_fail :-
-    print('Begin dynamic fail model-checking for the big model with K=7, P=1.0 and ssup operator\n'),
+    print('Begin dynamic fail model-checking for the big model with K=7, P=1.0 and strictly_greater operator\n'),
     statistics(runtime,[T0|_]),
-    (\+sat(prob_formula(ssup,1.0,u(true,7,p(elect))),0),retractall(dtmc_model_checking_SICS:node(_)) -> print('dynamic fail model-check SUCCEEDS\n')
+    (\+sat(probformula(strictly_greater,1.0,uk(true,7,p(elect))),0),retractall(dtmc_model_checking_SICS:node(_)) -> print('dynamic fail model-check SUCCEEDS\n')
         ; print('Dynamic fail model-check FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish dynamic fail model-checking for the big model with K=7, P=1.0 and ssup operator. \n It took ~3d sec.~n \n',[T]).
+    format('Finish dynamic fail model-checking for the big model with K=7, P=1.0 and strictly_greater operator. \n It took ~3d sec.~n \n',[T]).
 
 test_big :- 
     assert(choose_model(big)),
@@ -240,9 +240,9 @@ test_big :-
     statistics(runtime,[T0|_]),
     test_big_until,!,
     test_big_until_bounded,!,
-    test_dynamic_ssup_7_02,!,
-    test_dynamic_inf_6_097,!,
-    test_dynamic_eq_6_097,!,
+    test_dynamic_strictly_greater_7_02,!,
+    test_dynamic_less_6_097,!,
+    test_dynamic_equal_6_097,!,
     test_dynamic_fail,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
@@ -257,7 +257,7 @@ test_big :-
 test_crowds_5_3_positive :-
     print('Begin crowds_5_3 positive formula checking\n'),
     statistics(runtime,[T0|_]),
-    sat(prob_formula(eq,P,f(p(positive))),0),
+    sat(probformula(equal,P,f(p(positive))),0),
     (approx_float(P,0.13834) -> print('positive formula SUCCEEDS\n')
         ; print('positive formula FAILS\n')
     ),
@@ -269,7 +269,7 @@ test_crowds_5_3_positive :-
 test_crowds_5_3_false_positive :-
     print('Begin crowds_5_3 false positive formula checking\n'),
     statistics(runtime,[T0|_]),
-    sat(prob_formula(eq,P,f(p(false_positive))),0),
+    sat(probformula(equal,P,f(p(false_positive))),0),
     (approx_float(P,0.05104) -> print('false positive formula SUCCEEDS\n')
         ; print('false positive formula FAILS\n')
     ),
@@ -281,7 +281,7 @@ test_crowds_5_3_false_positive :-
 test_crowds_5_3_confident :-
     print('Begin crowds_5_3 confident formula checking\n'),
     statistics(runtime,[T0|_]),
-    sat(prob_formula(eq,P,f(p(confidence))),0),
+    sat(probformula(equal,P,f(p(confidence))),0),
     (approx_float(P,0.13834) -> print('confident formula SUCCEEDS\n')
         ; print('confident formula FAILS\n')
     ),
@@ -310,7 +310,7 @@ test_crowds_5_3 :-
 test_crowds_10_3_positive :-
     print('Begin crowds_10_3 positive formula checking\n'),
     statistics(runtime,[T0|_]),
-    sat(prob_formula(eq,P,f(p(positive))),0),
+    sat(probformula(equal,P,f(p(positive))),0),
     (approx_float(P,0.03679) -> print('positive formula SUCCEEDS\n')
         ; print('positive formula FAILS\n')
     ),
@@ -322,7 +322,7 @@ test_crowds_10_3_positive :-
 test_crowds_10_3_false_positive :-
     print('Begin crowds_10_3 false positive formula checking\n'),
     statistics(runtime,[T0|_]),
-    sat(prob_formula(eq,P,f(p(false_positive))),0),
+    sat(probformula(equal,P,f(p(false_positive))),0),
     (approx_float(P,0.01563) -> print('false positive formula SUCCEEDS\n')
         ; print('false positive formula FAILS\n')
     ),
@@ -334,7 +334,7 @@ test_crowds_10_3_false_positive :-
 test_crowds_10_3_confident :-
     print('Begin crowds_10_3 confident formula checking\n'),
     statistics(runtime,[T0|_]),
-    sat(prob_formula(eq,P,f(p(confidence))),0),
+    sat(probformula(equal,P,f(p(confidence))),0),
     (approx_float(P,0.03679) -> print('confident formula SUCCEEDS\n')
         ; print('confident formula FAILS\n')
     ),
