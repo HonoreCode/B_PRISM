@@ -1,0 +1,23 @@
+start(0).
+
+trans(0,0,2,[probability/0.9]).
+trans(1,0,1,[probability/0.1]).
+trans(2,2,4,[probability/0.5]).
+trans(3,2,5,[probability/0.3]).
+trans(4,2,3,[probability/0.1]).
+trans(5,1,0,[probability/0.4]).
+trans(6,1,3,[probability/0.6]).
+trans(7,5,4,[probability/0.4]).
+trans(8,5,2,[probability/0.3]).
+trans(9,3,3,[probability/1.0]).
+trans(10,2,2,[probability/0.1]).
+trans(11,5,5,[probability/0.3]).
+trans(12,4,4,[probability/1.0]).
+
+prop(1,a).
+prop(4,b).
+
+%:- use_module(extension('markov/dtmc_model_checking.pl')).
+
+% :- sat(probformula(equal,P,u(not(p(xtl_predicate_check(a))),p(xtl_predicate_check(b)))),4),print(p(P)),nl.
+%:- sat(probformula(equal,P,x(probformula(equal,0.5,x(p(xtl_predicate_check(b)))))),0),print(p(P)),nl.

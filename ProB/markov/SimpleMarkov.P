@@ -1,0 +1,13 @@
+start(unlocked).
+trans(lock,unlocked,locked,[probability/P]):- P is 0.5.
+trans(skip,unlocked,unlocked,[probability/0.5]).
+trans(unlock,locked,unlocked,[probability/0.5]).
+trans(deadlock,locked,finished,[probability/0.5]).
+prop(X,X).
+
+ %:- use_module(extension('markov/dtmc_model_checking.pl')).
+% yes
+%:- sat(probformula(equal,P,x(p(xtl_predicate_check(finished))))),print(p(P)),nl.
+% P = 1.0 ? 
+% yes
+  

@@ -1,0 +1,110 @@
+%**************************************
+
+% Module used :
+%    - to load the interesting parts from a B model of the
+%      CROWDS PROTOCOL translated to Prolog using ProB's 
+%      reachability analysis
+
+%    - to assign probabilities to each transition
+
+% See http://www.prismmodelchecker.org/casestudies/crowds.php
+% for more informations
+% PARAMETERS : 
+%    - pf = 0.8
+%    - TotalRuns = 3
+%    - CrowdSize  = 10
+
+%*************************************
+
+:- consult(slep_state_space_crowds103).
+
+%**************************************
+% Formulas to try on :
+
+% sat(probformula(equal,P,f(p(xtl_predicate_check(positive)))),0).
+
+% sat(probformula(equal,P,f(p(xtl_predicate_check(false_positive)))),0).
+
+% sat(probformula(equal,P,f(p(xtl_predicate_check(confidence)))),0).
+
+%**************************************
+
+% Definition of the Probabilistic labelled transition system from the state space
+% THIS PART MAY DEPEND ON THE MODEL
+start(0).
+
+prop(E,positive) :- 
+    packed_visited_expression(
+        E,'$bind_lst'(_,l3(_,_,_,l3(_,_,_,l3(
+            '$avl_packed'(
+                packed_node(_,_,
+                packed_node(_,_,
+                packed_leaf((0,X)),_)
+                    ,_)),_,_,[_,_]))))
+        ),
+    X>1.
+
+prop(E,false_positive   ) :-
+    packed_visited_expression(
+        E,'$bind_lst'(_,l3(_,_,_,l3(_,_,pred_true,l3(
+        '$avl_packed'(
+            packed_node((4,X4),_,
+            packed_node((1,X1),_,
+            packed_leaf((0,X0)),
+            packed_node((2,X2),_,_,
+            packed_leaf((3,X3)))),
+            packed_node((7,X7),_,
+            packed_node((5,X5),_,_,
+            packed_leaf((6,X6))),
+            packed_node((8,X8),_,_,
+            packed_leaf((9,X9))
+                )))),_,_,[_,_]))))
+        ),
+    X0=<1,
+    (X1>1
+    ;X2>1
+    ;X3>1
+    ;X4>1
+    ;X5>1
+    ;X6>1
+    ;X7>1
+    ;X8>1
+    ;X9>1
+    ).
+
+prop(E,confidence) :- 
+    packed_visited_expression(
+        E,'$bind_lst'(_,l3(_,_,_,l3(_,_,pred_true,l3(
+        '$avl_packed'(
+            packed_node((4,X4),_,
+            packed_node((1,X1),_,
+            packed_leaf((0,X0)),
+            packed_node((2,X2),_,_,
+            packed_leaf((3,X3)))),
+            packed_node((7,X7),_,
+            packed_node((5,X5),_,_,
+            packed_leaf((6,X6))),
+            packed_node((8,X8),_,_,
+            packed_leaf((9,X9))
+                )))),_,_,[_,_]))))
+        ),
+    X0>1,
+    X1=<1,
+    X2=<1,
+    X3=<1,
+    X4=<1,
+    X5=<1,
+    X6=<1,
+    X7=<1,
+    X8=<1,
+    X9=<1.
+
+trans(any_name,S1,S2,[probability/P]) :-
+    transition(S1,_,_,S2),
+    (transition(S1,'Is_a_good_member'(pred_true),_,S2) -> P is 0.909
+        ; transition(S1,'Is_a_good_member'(pred_false),_,S2) -> P is 0.091
+        ; transition(S1,'Forward_or_deliver'(pred_true),_,S2) -> P is 0.8
+        ; transition(S1,'Forward_or_deliver'(pred_false),_,S2) -> P is 0.2
+        ; transition(S1,'Record'(_),_,S2) -> P is 0.1
+        ; P is 1.0
+    ).
