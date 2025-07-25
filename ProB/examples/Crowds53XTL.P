@@ -1,0 +1,197 @@
+% new,runCount,start,run,lastSeen,good,bad,recordLast,badObserve,deliver,done,observe
+
+start(param(
+    new(true),runCount(3),begin(false),run(false),lastSeen(5),good(false),
+    bad(false),recordLast(false),badObserve(false),deliver(false),done(false),observe(0,0,0,0,0)
+    )).
+
+trans(
+    new_protocol,
+    param(
+        new(true),runCount(X),_Begin,Run,LastSeen,Good,
+        Bad,RecordLast,BadObserve,Deliver,Done,Observe
+    ),
+    param(
+        new(false),runCount(Y),begin(true),Run,LastSeen,Good,
+        Bad,RecordLast,BadObserve,Deliver,Done,Observe
+    ),
+    [probability/1.0]
+    ) :- 
+        0<X,
+        X<4,
+        Y is X-1.
+
+trans(
+    start_protocol,
+    param(
+        New,RunCount,begin(true),_Run,_LastSeen,Good,
+        Bad,RecordLast,BadObserve,_Deliver,Done,Observe
+    ),
+    param(New,RunCount,begin(false),run(true),lastSeen(0),Good,
+        Bad,RecordLast,BadObserve,deliver(false),Done,Observe
+    ),
+    [probability/1.0]
+    ).
+
+trans(
+    is_a_good_member(BOOL),
+    param(
+        New,RunCount,Begin,run(true),LastSeen,good(false),
+        bad(false),RecordLast,BadObserve,deliver(false),Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(false),LastSeen,Good,
+        Bad,RecordLastNext,BadObserveNext,deliver(false),Done,Observe
+    ),
+    [probability/P]
+    ) :-
+        BOOL = true ->
+            Good = good(true),
+            Bad = bad(false), 
+            RecordLastNext = recordLast(true),
+            BadObserveNext = BadObserve,
+            P = 0.833
+
+        ; BOOL = false ->
+            Good = good(false),
+            Bad = bad(true), 
+            RecordLastNext = RecordLast,
+            BadObserveNext = badObserve(true),
+            P = 0.167
+        .
+
+trans(
+    forward_or_deliver(BOOL),
+    param(
+        New,RunCount,Begin,run(true),LastSeen,good(true),
+        Bad,RecordLast,BadObserve,deliver(false),Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(true),LastSeen,Good,
+        Bad,RecordLast,BadObserve,Deliver,Done,Observe
+    ),
+    [probability/P]
+    ) :-
+        BOOL = true ->
+            Good = good(false),
+            Deliver = deliver(false)
+            P = 0.8
+
+        ; BOOL = false ->
+            Good = good(true),
+            Deliver = deliver(true)
+        .
+
+trans(
+    record(Member),
+    param(
+        New,RunCount,Begin,_Run,_LastSeen,Good,
+        Bad,recordLast(true),BadObserve,Deliver,Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(true),lastSeen(Member),Good,
+        Bad,recordLast(false),BadObserve,Deliver,Done,Observe
+    ),
+    [probability/0.2]
+    ) :- 
+        Member >=0,
+        Member =< 4.
+
+trans(
+    eavesdrop,
+    param(
+        New,RunCount,Begin,_Run,lastSeen(Member),Good,
+        Bad,RecordLast,badObserve(true),_Deliver,Done,observe(O0,O1,O2,O3,O4)
+    ),
+    param(
+        New,RunCount,Begin,run(true),lastSeen(Member),Good,
+        Bad,RecordLast,badObserve(false),deliver(true),Done,observe(O0_New,O1_New,O2_New,O3_New,O4_New)
+    ),
+    [probability/1.0]
+    ) :-
+        Member = 0 ->
+            O0 < 3,
+            O0_New is O0 + 1,
+            O1_New=O1,O2_New=O2,O3_New=O3,O4_New=O4
+        ; Member = 1 ->
+            O1 < 3,
+            O1_New is O1 + 1,
+            O0_New=O0,O2_New=O2,O3_New=O3,O4_New=O4
+        ; Member = 2 ->
+            O2 < 3,
+            O2_New is O2 + 1,
+            O0_New=O0,O1_New=O1,O3_New=O3,O4_New=O4
+        ; Member = 3 ->
+            O3 < 3,
+            O3_New is O3 + 1,
+            O0_New=O0,O2_New=O2,O1_New=O1,O4_New=O4
+        ; Member = 4 ->
+            O4 < 3,
+            O4_New is O4 + 1,
+            O0_New=O0,O2_New=O2,O3_New=O3,O1_New=O1
+        .
+
+trans(
+    deliver,
+    param(
+        New,RunCount,Begin,run(true),LastSeen,_Good,
+        _Bad,RecordLast,BadObserve,deliver(true),_Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(false),LastSeen,good(false),
+        bad(false),RecordLast,BadObserve,deliver(false),done(true),Observe
+    ),
+    [probability/1.0]
+    ).
+
+trans(
+    restart,
+    param(
+        _New,RunCount,Begin,_Run,_LastSeen,Good,
+        Bad,RecordLast,BadObserve,Deliver,done(true),Observe
+    ),
+    param(
+        new(true),RunCount,Begin,run(false),lastSeen(5),Good,
+        Bad,RecordLast,BadObserve,Deliver,done(false),Observe
+    ),
+    [probability/1.0]
+    ).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Properties
+
+prop(
+    param(
+        _New,_RunCount,_Begin,_Run,_LastSeen,_Good,
+        _Bad,_RecordLast,_BadObserve,_Deliver,_Done,observe(X,_,_,_,_)
+    ),
+    positive) :-
+        X>1.
+
+prop(
+    param(
+        _New,_RunCount,_Begin,_Run,_LastSeen,_Good,
+        _Bad,_RecordLast,_BadObserve,_Deliver,_Done,
+        observe(Obs0,Obs1,Obs2,Obs3,Obs4)
+    ),
+    false_positive) :-
+        Obs0 =<1,
+        (Obs1 > 1;
+        Obs2 > 1;
+        Obs3 > 1;
+        Obs4 > 1).
+
+prop(
+    param(
+        _New,_RunCount,_Begin,_Run,_LastSeen,_Good,
+        _Bad,_RecordLast,_BadObserve,_Deliver,_Done,
+        observe(Obs0,Obs1,Obs2,Obs3,Obs4)
+    ),
+    confidence) :-
+        Obs0 > 1,
+        Obs1 =< 1,
+        Obs2 =< 1,
+        Obs3 =< 1,
+        Obs4 =< 1.
