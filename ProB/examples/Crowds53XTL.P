@@ -34,71 +34,121 @@ trans(
     ).
 
 trans(
-    is_a_good_member(BOOL),
+    is_a_good_member(true),
     param(
         New,RunCount,Begin,run(true),LastSeen,good(false),
-        bad(false),RecordLast,BadObserve,deliver(false),Done,Observe
+        bad(false),_RecordLast,BadObserve,deliver(false),Done,Observe
     ),
     param(
-        New,RunCount,Begin,run(false),LastSeen,Good,
-        Bad,RecordLastNext,BadObserveNext,deliver(false),Done,Observe
+        New,RunCount,Begin,run(false),LastSeen,good(true),
+        bad(false),recordLast(true),BadObserve,deliver(false),Done,Observe
     ),
-    [probability/P]
-    ) :-
-        BOOL = true ->
-            Good = good(true),
-            Bad = bad(false), 
-            RecordLastNext = recordLast(true),
-            BadObserveNext = BadObserve,
-            P = 0.833
-
-        ; BOOL = false ->
-            Good = good(false),
-            Bad = bad(true), 
-            RecordLastNext = RecordLast,
-            BadObserveNext = badObserve(true),
-            P = 0.167
-        .
+    [probability/0.833]
+    ).
 
 trans(
-    forward_or_deliver(BOOL),
+    is_a_good_member(false),
+    param(
+        New,RunCount,Begin,run(true),LastSeen,good(false),
+        bad(false),RecordLast,_BadObserve,deliver(false),Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(false),LastSeen,good(false),
+        bad(true),RecordLast,badObserve(true),deliver(false),Done,Observe
+    ),
+    [probability/0.167]
+    ).
+
+trans(
+    forward_or_deliver(true),
     param(
         New,RunCount,Begin,run(true),LastSeen,good(true),
         Bad,RecordLast,BadObserve,deliver(false),Done,Observe
     ),
     param(
-        New,RunCount,Begin,run(true),LastSeen,Good,
-        Bad,RecordLast,BadObserve,Deliver,Done,Observe
+        New,RunCount,Begin,run(true),LastSeen,good(false),
+        Bad,RecordLast,BadObserve,deliver(false),Done,Observe
     ),
-    [probability/P]
-    ) :-
-        BOOL = true ->
-            Good = good(false),
-            Deliver = deliver(false),
-            P = 0.8
-
-        ; BOOL = false ->
-            Good = good(true),
-            Deliver = deliver(true)
-        .
+    [probability/0.8]
+    ).
 
 trans(
-    record(Member),
+    forward_or_deliver(false),
+    param(
+        New,RunCount,Begin,run(true),LastSeen,good(true),
+        Bad,RecordLast,BadObserve,deliver(false),Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(true),LastSeen,good(true),
+        Bad,RecordLast,BadObserve,deliver(true),Done,Observe
+    ),
+    [probability/0.2]
+    ).
+
+trans(
+    record(0),
     param(
         New,RunCount,Begin,_Run,_LastSeen,Good,
         Bad,recordLast(true),BadObserve,Deliver,Done,Observe
     ),
     param(
-        New,RunCount,Begin,run(true),lastSeen(Member),Good,
+        New,RunCount,Begin,run(true),lastSeen(0),Good,
         Bad,recordLast(false),BadObserve,Deliver,Done,Observe
     ),
     [probability/0.2]
-    ) :- 
-        Member = 0;
-        Member = 1;
-        Member = 2;
-        Member = 3;
-        Member = 4.
+    ).
+
+trans(
+    record(1),
+    param(
+        New,RunCount,Begin,_Run,_LastSeen,Good,
+        Bad,recordLast(true),BadObserve,Deliver,Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(true),lastSeen(1),Good,
+        Bad,recordLast(false),BadObserve,Deliver,Done,Observe
+    ),
+    [probability/0.2]
+    ).
+
+trans(
+    record(2),
+    param(
+        New,RunCount,Begin,_Run,_LastSeen,Good,
+        Bad,recordLast(true),BadObserve,Deliver,Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(true),lastSeen(2),Good,
+        Bad,recordLast(false),BadObserve,Deliver,Done,Observe
+    ),
+    [probability/0.2]
+    ).
+
+trans(
+    record(3),
+    param(
+        New,RunCount,Begin,_Run,_LastSeen,Good,
+        Bad,recordLast(true),BadObserve,Deliver,Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(true),lastSeen(3),Good,
+        Bad,recordLast(false),BadObserve,Deliver,Done,Observe
+    ),
+    [probability/0.2]
+    ).
+
+trans(
+    record(4),
+    param(
+        New,RunCount,Begin,_Run,_LastSeen,Good,
+        Bad,recordLast(true),BadObserve,Deliver,Done,Observe
+    ),
+    param(
+        New,RunCount,Begin,run(true),lastSeen(4),Good,
+        Bad,recordLast(false),BadObserve,Deliver,Done,Observe
+    ),
+    [probability/0.2]
+    ).
 
 trans(
     eavesdrop,
