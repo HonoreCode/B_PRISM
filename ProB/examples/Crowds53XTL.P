@@ -17,21 +17,27 @@
 % sat(probformula(equal,P,f(p(xtl_predicate_check(positive)))),0). 
 % Using the parser (not tested yet) :
 % P={p} [f p(xtl_predicate_check(positive))]
+
 % PRISM result : 0.13834059174452618 +/- 1.3130986283544154E-6
+
 
 
 % In Prolog :
 % sat(probformula(equal,P,f(p(xtl_predicate_check(false_positive)))),0).
 % Using the parser (not tested yet) :
 % P={p} [f p(xtl_predicate_check(false_positive))]
+
 % PRISM result : 0.0510421803550274 +/- 5.059763339046543E-7
+
 
 
 % In Prolog :
 % sat(probformula(equal,P,f(p(xtl_predicate_check(confidence)))),0).
 % Using the parser (not tested yet) :
 % P={p} [f p(xtl_predicate_check(confidence))]
+
 % PRISM result : 0.13834059174452618 +/- 1.3130986283544154E-6
+
 
 
 %**************************************
