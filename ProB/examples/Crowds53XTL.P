@@ -1,10 +1,65 @@
-% new,runCount,start,run,lastSeen,good,bad,recordLast,badObserve,deliver,done,observe
+%**************************************
+
+%  Model based on a PRISM case study
+
+% See http://www.prismmodelchecker.org/casestudies/crowds.php
+% for more informations
+% PARAMETERS : 
+%    - pf = 0.8
+%    - TotalRuns = 3
+%    - CrowdSize  = 5
+%    - badC = 0.167
+
+%**************************************
+% Formulas to try on :
+
+% In Prolog :
+% sat(probformula(equal,P,f(p(xtl_predicate_check(positive)))),0). 
+% Using the parser (not tested yet) :
+% P={p} [f p(xtl_predicate_check(positive))]
+% PRISM result : 0.13834059174452618 +/- 1.3130986283544154E-6
+
+
+% In Prolog :
+% sat(probformula(equal,P,f(p(xtl_predicate_check(false_positive)))),0).
+% Using the parser (not tested yet) :
+% P={p} [f p(xtl_predicate_check(false_positive))]
+% PRISM result : 0.0510421803550274 +/- 5.059763339046543E-7
+
+
+% In Prolog :
+% sat(probformula(equal,P,f(p(xtl_predicate_check(confidence)))),0).
+% Using the parser (not tested yet) :
+% P={p} [f p(xtl_predicate_check(confidence))]
+% PRISM result : 0.13834059174452618 +/- 1.3130986283544154E-6
+
+
+%**************************************
+
+%  START
 
 start(param(
-    new(true),runCount(3),begin(false),run(false),lastSeen(5),good(false),
-    bad(false),recordLast(false),badObserve(false),deliver(false),done(false),observe(0,0,0,0,0)
+    new(true), /*Initialize a new protocol instance*/
+    runCount(3), /*@desc Count protocol instances*/
+    begin(false), /*@desc Start the protocol*/
+    run(false), /*@desc Run the protocol*/
+    lastSeen(5), /*@desc Last crowd member to touch message*/
+    good(false), /*@desc The crowd member is good*/
+    bad(false), /*@desc The crowd member is corrupt*/
+    recordLast(false), /*@desc Record last seen crowd member?*/
+    badObserve(false), /*@desc Bad members observes who sent message?*/
+    deliver(false), /*@desc Deliver message to destination?*/
+    done(false), /*@desc Protocol instance finished?*/
+    observe(0,0,0,0,0) /*@desc How many times each member have been observed by a bad member*/
     )).
 
+
+% ------------------------------------------------
+
+% TRANSITIONS
+
+
+% Inititialize a new protocol instance, with a reformulated path
 trans(
     new_protocol,
     param(
@@ -21,6 +76,8 @@ trans(
         X<4,
         Y is X-1.
 
+
+%   Start the protocol
 trans(
     start_protocol,
     param(
@@ -33,6 +90,9 @@ trans(
     [probability/1.0]
     ).
 
+
+
+%  Send the message to a honest crowd member
 trans(
     is_a_good_member(true),
     param(
@@ -46,6 +106,8 @@ trans(
     [probability/0.833]
     ).
 
+
+%  Send the message to a corrupt crowd member
 trans(
     is_a_good_member(false),
     param(
@@ -59,6 +121,8 @@ trans(
     [probability/0.167]
     ).
 
+
+%  Forward the message to another crowd member
 trans(
     forward_or_deliver(true),
     param(
@@ -72,6 +136,8 @@ trans(
     [probability/0.8]
     ).
 
+
+% Deliver the message to the receiver
 trans(
     forward_or_deliver(false),
     param(
@@ -85,6 +151,8 @@ trans(
     [probability/0.2]
     ).
 
+
+% Record the last member in touch with the message
 trans(
     record(0),
     param(
@@ -150,6 +218,8 @@ trans(
     [probability/0.2]
     ).
 
+
+% A corrupt member takes notes of the last member
 trans(
     eavesdrop,
     param(
@@ -184,6 +254,8 @@ trans(
             O0_New=O0,O2_New=O2,O3_New=O3,O1_New=O1
         .
 
+
+% Deliver the message to the receiver
 trans(
     deliver,
     param(
@@ -197,6 +269,8 @@ trans(
     [probability/1.0]
     ).
 
+
+% Restart a new protocol, with a new path formulation
 trans(
     restart,
     param(
@@ -213,8 +287,10 @@ trans(
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Properties
+%   PROPERTIES
 
+
+%   The adversary observed the real sender more than once
 prop(
     param(
         _New,_RunCount,_Begin,_Run,_LastSeen,_Good,
@@ -223,6 +299,8 @@ prop(
     positive) :-
         X>1.
 
+
+%   The adversary observed someone other than the real sender more than once
 prop(
     param(
         _New,_RunCount,_Begin,_Run,_LastSeen,_Good,
@@ -236,6 +314,8 @@ prop(
         Obs3 > 1;
         Obs4 > 1).
 
+
+%   The adversary observed the real sender and only the real sender more than once
 prop(
     param(
         _New,_RunCount,_Begin,_Run,_LastSeen,_Good,

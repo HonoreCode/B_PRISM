@@ -1,12 +1,5 @@
 %**************************************
 
-% Module used :
-%    - to load the interesting parts from a B model of the
-%      CROWDS PROTOCOL translated to Prolog using ProB's 
-%      reachability analysis
-
-%    - to assign probabilities to each transition
-
 % See http://www.prismmodelchecker.org/casestudies/crowds.php
 % for more informations
 % PARAMETERS : 

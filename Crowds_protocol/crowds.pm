@@ -12,13 +12,13 @@ const double    PF = 0.8;
 const double notPF = 0.2;  // must be 1-PF
 
 // Probability that a crowd member is bad
-const double  badC = 0.091;
+const double  badC = 0.167;
 // const double  badC = 0.167;
-const double goodC = 0.909;  // must be 1-badC
+const double goodC = 0.833;  // must be 1-badC
 // const double goodC = 0.833;  // must be 1-badC
 
-const int TotalRuns = 4; // Total number of protocol runs to analyze
-const int CrowdSize = 10; // CWDSIZ: actual number of good crowd members
+const int TotalRuns = 3; // Total number of protocol runs to analyze
+const int CrowdSize = 5; // CWDSIZ: actual number of good crowd members
 const int MaxGood=20; // CWDMAX: maximum number of good crowd members
 
 // Process definitions
