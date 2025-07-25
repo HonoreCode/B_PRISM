@@ -74,7 +74,7 @@ trans(
     ) :-
         BOOL = true ->
             Good = good(false),
-            Deliver = deliver(false)
+            Deliver = deliver(false),
             P = 0.8
 
         ; BOOL = false ->
@@ -94,8 +94,11 @@ trans(
     ),
     [probability/0.2]
     ) :- 
-        Member >=0,
-        Member =< 4.
+        Member = 0;
+        Member = 1;
+        Member = 2;
+        Member = 3;
+        Member = 4.
 
 trans(
     eavesdrop,
