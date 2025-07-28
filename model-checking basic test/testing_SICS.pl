@@ -383,4 +383,4 @@ test_crowds_10_3 :-
 partial_test :- test_loop,test_big.
 
 % to do a full test (~10 sec)
-full_test :- test_loop,test_big,test_crowds_5_3,test_crowds_10_3.
+full_test :- test_loop,!,test_big,!,test_crowds_5_3,!,test_crowds_10_3.
