@@ -21,3 +21,4 @@ prop(4,b).
 
 % :- sat(probformula(equal,P,u(not(p(xtl_predicate_check(a))),p(xtl_predicate_check(b)))),4),print(p(P)),nl.
 %:- sat(probformula(equal,P,x(probformula(equal,0.5,x(p(xtl_predicate_check(b)))))),0),print(p(P)),nl.
+%:- sat(probformula(equal,0.21666666666666667,f(probformula(less,0.6,u(not(p(xtl_predicate_check(a))),p(xtl_predicate_check(b)))))),0),print(p(P)),nl.

@@ -237,7 +237,8 @@ prob1(F,G,E1,Node) :-
     \+ table_prob1(E2,computing,Node),
     (prob1(F,G,E2,Node) ->
         asserta(table_prob1(E1,true,Node)),
-        retract(table_prob1(E1,computing,Node))),!.
+        retract(table_prob1(E1,computing,Node))
+    ),!.
 
 search_prob1(F,G,E,Node):-
     retractall(table_prob1(_,computing,Node)),
