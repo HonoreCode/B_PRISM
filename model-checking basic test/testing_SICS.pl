@@ -155,7 +155,7 @@ test_loop_eventually_eventually :-
 test_loop_eventually_until :-
     print('Begin loop eventually until formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(equal,P,f(probformula(inf,0.6,u(not(p(a)),p(b))))),0),print(P),nl -> 
+    (sat(probformula(equal,0.21666666666666667,f(probformula(less,0.6,u(not(p(a)),p(b))))),0) -> 
             print('Eventually until formula SUCCEEDS\n')
             ; print('Eventually until formula FAILS\n')),
     statistics(runtime,[T1|_]),

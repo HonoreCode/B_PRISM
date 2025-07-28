@@ -155,8 +155,8 @@ prob_calc(uk(F,K,G),E,P_phi,Operator,Node) :-
 % For this formula we have to calculate the probability for
 % all states
 prob_calc(u(F,G),E,P_phi,Node) :- 
-    retractall(table_prob0(_,_,_)),
-    retractall(table_prob1(_,_,_)),
+    retractall(table_prob0(_,_,Node)),
+    retractall(table_prob1(_,_,Node)),
     prob_calc_u1(F,G,List_S,P_vect,Node),
     state(E),
     (find_prob_u(List_S,P_vect,E,P) -> P_phi=P
