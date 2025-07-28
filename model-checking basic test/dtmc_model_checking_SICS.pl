@@ -10,7 +10,7 @@
 
 %###############################################
 
-:- module(dtmc_model_checking_SICS,[sat/2,search_prob0/3,prob0/3,prob1/3,table_prob0/2,state/1]).
+:- module(dtmc_model_checking_SICS,[sat/2,sat/1,search_prob0/3,prob0/3,prob1/3,table_prob0/2,state/1]).
 :- use_module(library(clpr),[{}/1]).
 
 :- use_module('models/translate_model_SICS',[start/1,prop/2,state/1,trans/3]).
@@ -46,16 +46,17 @@ sat(not(F),E) :- probformula(_,_,_)\=F,sat_not(F,E).
 
 % Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
 % E is a state.
-sat(probformula(Operator,P,Ctl_formula),E) :- 
-    Ctl_formula = u(F,G) ->
-        prob_calc(u(F,G),E,P_phi),
-        against(P_phi,P,Operator)
-    ;   Ctl_formula = f(G) -> 
-        sat(probformula(Operator,P,u(true,G)),E)
-    ; Ctl_formula = fk(K,G) ->
-        sat(probformula(Operator,P,uk(true,K,G)),E)
-    ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E)
-    .
+% Check if the formula is nested 
+sat(probformula(Operator,P,Ctl_formula),E) :-
+    (node(Node) -> 
+        New_Node is Node +1,
+        retract(node(Node)),
+        assert(node(New_Node)),
+        sat_node(probformula(Operator,P,Ctl_formula),E,New_Node)
+    ;   assert(node(0)),
+        sat_node(probformula(Operator,P,Ctl_formula),E,0),
+        retractall(node(_))        /*reinitialize nodes*/
+    ).
 sat(not(probformula(Operator,P,Ctl_formula)),E) :-
     sat(probformula(not(Operator),P,Ctl_formula),E).
 
@@ -69,22 +70,23 @@ sat(probformula(Operator,P,g(F)),E) :-
     Q is 1-P,
     sat(not(probformula(Operator,Q,f(not(F)))),E).
 
-% Check if the formula is nested 
-sat_dynamic(probformula(Operator,P,Ctl_formula),E) :-
-    (node(Node) -> 
-        New_Node is Node +1,
-        retract(node(Node)),
-        assert(node(New_Node)),
-        sat_dynamic_node(probformula(Operator,P,Ctl_formula),E,New_Node)
-    ;   assert(node(0)),
-        sat_dynamic_node(probformula(Operator,P,Ctl_formula),E,0),
-        retractall(node(_))        /*reinitialize nodes*/
-    ).
+% Check the type of the formula
+sat_node(probformula(Operator,P,Ctl_formula),E,Node) :- 
+    Ctl_formula = u(F,G) ->
+        prob_calc(u(F,G),E,P_phi,Node),
+        against(P_phi,P,Operator)
+    ;   Ctl_formula = f(G) -> 
+        prob_calc(u(true,G),E,P_phi,Node),
+        against(P_phi,P,Operator)
+    ; Ctl_formula = fk(K,G) ->
+        sat_dynamic(probformula(Operator,P,uk(true,K,G)),E,Node)
+    ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node)
+    .
 
 % Use a different technic depending on the operator
 % This allow notably the calculation of a probability for the equal operator
-sat_dynamic_node(probformula(Operator,P,Ctl_formula),E,Node) :- 
-    ((Operator = greater ; Operator= strictly_greater) ->
+sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :- 
+    ((Operator = greater ; Operator= strictlygreater) ->
         ground(P),
         prob_calc(Ctl_formula,E,P,Operator,Node)
 
@@ -98,9 +100,9 @@ sat_dynamic_node(probformula(Operator,P,Ctl_formula),E,Node) :-
 
     ;   Operator = less ->
             ground(P),
-            \+(prob_calc(Ctl_formula,E,P,strictly_greater,Node))
+            \+(prob_calc(Ctl_formula,E,P,strictlygreater,Node))
 
-    ;   Operator = strictly_less ->
+    ;   Operator = strictlyless ->
             ground(P),
             \+(prob_calc(Ctl_formula,E,P,greater,Node))
     ).
@@ -121,16 +123,16 @@ against(P_phi,P,less) :-
 against(P_phi,P,greater) :- 
     ground(P),
     P_phi >= P - 0.00000000000000023.   % greater
-against(P_phi,P,strictly_less) :- 
+against(P_phi,P,strictlyless) :- 
     ground(P),
     P_phi < P + 0.00000000000000023.   % strictly less
-against(P_phi,P,strictly_greater) :- 
+against(P_phi,P,strictlygreater) :- 
     ground(P),
-    P_phi > P - 0.00000000000000023.   % strictly_greater
-against(P_phi,P,not(less)) :- against(P_phi,P,strictly_greater).
-against(P_phi,P,not(greater)) :- against(P_phi,P,strictly_less).
-against(P_phi,P,not(strictly_less)) :- against(P_phi,P,sup).
-against(P_phi,P,not(strictly_greater)) :- against(P_phi,P,less).
+    P_phi > P - 0.00000000000000023.   % strictly greater
+against(P_phi,P,not(less)) :- against(P_phi,P,strictlygreater).
+against(P_phi,P,not(greater)) :- against(P_phi,P,strictlyless).
+against(P_phi,P,not(strictlyless)) :- against(P_phi,P,sup).
+against(P_phi,P,not(strictlygreater)) :- against(P_phi,P,less).
 
 % Next formula
 :- dynamic prob_current/2.
@@ -149,19 +151,13 @@ prob_calc(uk(F,K,G),E,P_phi,Operator,Node) :-
     ;   against(0.0,P_phi,Operator)),!
     .
 
-
-% Eventually-bounded formula
-prob_calc(fk(K,F),E,P_phi,Operator) :-
-    prob_calc(uk(true,K,F),E,P_phi,Operator).
-
-
 % Until formula 
 % For this formula we have to calculate the probability for
 % all states
-prob_calc(u(F,G),E,P_phi) :- 
-    retractall(table_prob0(_,_)),
-    retractall(table_prob1(_,_)),
-    prob_calc_u1(F,G,List_S,P_vect),
+prob_calc(u(F,G),E,P_phi,Node) :- 
+    retractall(table_prob0(_,_,_)),
+    retractall(table_prob1(_,_,_)),
+    prob_calc_u1(F,G,List_S,P_vect,Node),
     state(E),
     (find_prob_u(List_S,P_vect,E,P) -> P_phi=P
         ; P_phi=0.0
@@ -198,63 +194,68 @@ prob_calc_sub(uk(F,K_new,G),E,P_phi,P_trace,Operator,Node) :-
    
 % 1rst precomputation for the until formula
 
-:- dynamic table_prob0/2.
+:- dynamic table_prob0/3.
 
-prob0(_F,_G,E) :-
-    table_prob0(E,true),!.
+prob0(_F,_G,E,Node) :-
+    table_prob0(E,true,Node),!.
 
-prob0(_F,G,E) :- 
+prob0(_F,G,E,Node) :- 
     sat(G,E),
     !,
-    asserta(table_prob0(E,true)).
+    asserta(table_prob0(E,true,Node)).
 
-prob0(F,G,E1) :- 
+prob0(F,G,E1,Node) :- 
     sat(F,E1),
-    assertz(table_prob0(E1,computing)),
+    assertz(table_prob0(E1,computing,Node)),
     trans(E1,E2,_P),
-    \+ table_prob0(E2,computing),
-    (prob0(F,G,E2) -> 
-        asserta(table_prob0(E1,true)),
-        retract(table_prob0(E1,computing))
+    \+ table_prob0(E2,computing,Node),
+    (prob0(F,G,E2,Node) -> 
+        asserta(table_prob0(E1,true,Node)),
+        retract(table_prob0(E1,computing,Node))
     ),!.
 
-search_prob0(F,G,E):-
-    retractall(table_prob0(_,computing)),
-    prob0(F,G,E).
+search_prob0(F,G,E,Node):-
+    retractall(table_prob0(_,computing,Node)),
+    prob0(F,G,E,Node).
     
 % 2nd precomputation for the until formula
-:- dynamic table_prob1/2.
+:- dynamic table_prob1/3.
 
-prob1(_F,_G,E) :-
-    table_prob1(E,true),!.
+prob1(_F,_G,E,Node) :-
+    table_prob1(E,true,Node),!.
 
-prob1(_F,_G,E) :- 
-    \+(table_prob0(E,true)),
+prob1(_F,_G,E,Node) :- 
+    \+(table_prob0(E,true,Node)),
     !,
-    asserta(table_prob1(E,true)).
+    asserta(table_prob1(E,true,Node)).
 
-prob1(F,G,E1) :- 
+prob1(F,G,E1,Node) :- 
     sat(F,E1),
-    assert(table_prob1(E1,computing)),
+    \+(sat(G,E1)),
+    assert(table_prob1(E1,computing,Node)),
     trans(E1,E2,_P),
-    \+ table_prob1(E2,computing),
-    (prob1(F,G,E2) ->
-        asserta(table_prob1(E1,true)),
-        retract(table_prob1(E1,computing))),!.
+    \+ table_prob1(E2,computing,Node),
+    (prob1(F,G,E2,Node) ->
+        asserta(table_prob1(E1,true,Node)),
+        retract(table_prob1(E1,computing,Node))),!.
+
+search_prob1(F,G,E,Node):-
+    retractall(table_prob1(_,computing,Node)),
+    prob1(F,G,E,Node).
 
 % P_vect is the vector of non-null probabilities 
 % for the until formula
-prob_calc_u1(F,G,List_S,P_vect) :- 
-    findall(S,(state(S),search_prob0(F,G,S)),List_S),
-    findall(E,(state(E),prob1(F,G,E)),_List),
-    prob_calc_u2(F,G,List_S,List_S,P_vect,P_vect).
+prob_calc_u1(F,G,List_S,P_vect,Node) :- 
+    findall(S,(state(S),search_prob0(F,G,S,Node)),List_S),
+    findall(E,(state(E),search_prob1(F,G,E,Node)),_List),
+    prob_calc_u2(F,G,List_S,List_S,P_vect,P_vect,Node).
 
-prob_calc_u2(_F,_G,[],_List_S,[],_P_vect).
-prob_calc_u2(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect) :-
-    (table_prob1(S,true) -> prob_calc_u3(S,List_S,P_phi,P_vect) 
+prob_calc_u2(_F,_G,[],_List_S,[],_P_vect,_Node).
+prob_calc_u2(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,Node) :-
+    (table_prob1(S,true,Node) -> prob_calc_u3(S,List_S,P_phi,P_vect) 
         ;   P_phi=1.0
     ),
-    prob_calc_u2(F,G,List_S_explored,List_S,P_vect_explored,P_vect).
+    prob_calc_u2(F,G,List_S_explored,List_S,P_vect_explored,P_vect,Node).
 
 prob_calc_u3(_S,[],0.0,[]).
 prob_calc_u3(S,[E|List_S],P_phi_new,[P|P_vect]) :-

@@ -31,7 +31,7 @@
 
 :- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_crowds_5_3_positive/0]).
 
-:- use_module(dtmc_model_checking_SICS,[sat/2,state/1]).
+:- use_module(dtmc_model_checking_SICS,[sat/2,sat/1,state/1]).
 
 :- use_module(library(clpr),[{}/1]).
 
@@ -142,6 +142,16 @@ test_loop_eventually :-
     T is T1-T0,
     format('Finish loop eventually formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_eventually_eventually :-
+    print('Begin loop eventually eventually formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,0.3,u(not(p(a)),probformula(equal,0.90652,fk(5,p(b))))),0) -> 
+            print('Eventually eventually formula SUCCEEDS\n')
+            ; print('Eventually eventually formula FAILS\n')),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop eventually eventually formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop :- 
     assert(choose_model(loop)),
     print('Begin loop model tests\n\n'),
@@ -152,6 +162,7 @@ test_loop :-
     test_loop_until_bounded,!,
     test_loop_always,!,
     test_loop_eventually,!,
+    test_loop_eventually_eventually,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
@@ -194,15 +205,15 @@ test_big_until :-
     format('Finish leader election until formula checking. \n The result is ~h \n It took ~3d sec.~n \n',[1.0,T]).
 
 % Specific tests for dynamic model-checking
-test_dynamic_strictly_greater_7_02 :-
-    print('Begin dynamic model-checking for the big model with K=7, P=0.2 and strictly_greater operator\n'),
+test_dynamic_strictlygreater_7_02 :-
+    print('Begin dynamic model-checking for the big model with K=6, P=0.2 and strictlygreater operator\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(strictly_greater,0.2,uk(true,7,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
+    (sat(probformula(strictlygreater,0.2,uk(true,7,p(elect))),0) -> print('dynamic model-check SUCCEEDS\n')
         ; print('Dynamic model-check FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish dynamic model-checking for the big model with K=7, P=0.2 and strictly_greater operator. \n It took ~3d sec.~n \n',[T]).
+    format('Finish dynamic model-checking for the big model with K=7 P=0.2 and strictlygreater operator. \n It took ~3d sec.~n \n',[T]).
 
 test_dynamic_less_6_097 :-
     print('Begin dynamic model-checking for the big model with K=6, P=0.97 and less operator\n'),
@@ -240,7 +251,7 @@ test_big :-
     statistics(runtime,[T0|_]),
     test_big_until,!,
     test_big_until_bounded,!,
-    test_dynamic_strictly_greater_7_02,!,
+    test_dynamic_strictlygreater_7_02,!,
     test_dynamic_less_6_097,!,
     test_dynamic_equal_6_097,!,
     test_dynamic_fail,!,

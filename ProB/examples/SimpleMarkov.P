@@ -10,4 +10,3 @@ prop(X,X).
 %:- sat(probformula(equal,P,x(p(xtl_predicate_check(finished))))),print(p(P)),nl.
 % P = 1.0 ? 
 % yes
-  
