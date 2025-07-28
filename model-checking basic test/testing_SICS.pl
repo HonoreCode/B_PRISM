@@ -152,6 +152,16 @@ test_loop_eventually_eventually :-
     T is T1-T0,
     format('Finish loop eventually eventually formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_eventually_until :-
+    print('Begin loop eventually until formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,P,f(probformula(inf,0.6,u(not(p(a)),p(b))))),0),print(P),nl -> 
+            print('Eventually until formula SUCCEEDS\n')
+            ; print('Eventually until formula FAILS\n')),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop eventually until formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop :- 
     assert(choose_model(loop)),
     print('Begin loop model tests\n\n'),
@@ -163,6 +173,7 @@ test_loop :-
     test_loop_always,!,
     test_loop_eventually,!,
     test_loop_eventually_eventually,!,
+    test_loop_eventually_until,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
