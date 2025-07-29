@@ -150,9 +150,9 @@ prob_calc(x(F),E,P_phi,Operator,Node) :-
 prob_calc(uk(F,K,G),E,P_phi,Operator,Node) :- 
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
-    ((sat(F,E) ; sat(G,E)) ->
-        prob_calc_sub(uk(F,K,G),E,P_phi,1.0,Operator,Node)
-    ;   against(0.0,P_phi,Operator)),!
+    ((sat(F,E) ; sat(G,E)),
+    prob_calc_sub(uk(F,K,G),E,P_phi,1.0,Operator,Node))
+    ;   against(0.0,P_phi,Operator),!
     .
 
 % Until formula 
