@@ -71,6 +71,17 @@ test_loop_next :-
     T is T1-T0,
     format('Finish loop next formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_next_sure :- 
+    print('Begin loop next sure formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(strictlyless,1.0,x(p(b))),4) -> 
+        print('Next sure formula SUCCEEDS\n')
+        ; print('Next sure formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop next sure formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop_next_fail :- 
     print('Begin loop next fail formula checking\n'),
     statistics(runtime,[T0|_]),
@@ -210,6 +221,7 @@ test_loop :-
     statistics(runtime,[T0|_]),
     test_loop_next,!,
     test_loop_next_fail,!,
+    test_loop_next_sure,!,
     test_loop_next_next,!,
     test_loop_until,!,
     test_loop_until_bounded,!,
