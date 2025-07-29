@@ -62,13 +62,17 @@ sat(not(probformula(Operator,P,Ctl_formula)),E) :-
 
 % Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
 sat(probformula(Operator,P,gk(K,F)),E) :-
-    Q is 1-P,
-    sat(not(probformula(Operator,Q,fk(K,not(F)))),E).
+    (Operator = equal ->
+        sat(probformula(Operator,Q,fk(K,not(F))),E)
+    ;   sat(not(probformula(Operator,Q,fk(K,not(F)))),E)),
+    P is 1-Q.
 
 % Always formula
 sat(probformula(Operator,P,g(F)),E) :-
-    Q is 1-P,
-    sat(not(probformula(Operator,Q,f(not(F)))),E).
+    (Operator = equal ->
+        sat(probformula(Operator,Q,f(not(F))),E)
+    ;   sat(not(probformula(Operator,Q,f(not(F)))),E)),
+    P is 1-Q.
 
 % Check the type of the formula
 sat_node(probformula(Operator,P,Ctl_formula),E,Node) :- 
