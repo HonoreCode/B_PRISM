@@ -74,7 +74,7 @@ test_loop_next :-
 test_loop_next_fail :- 
     print('Begin loop next fail formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(strictlyless,0.0,x(p(b))),0) -> 
+    (sat(probformula(less,0.0,x(p(b))),0) -> 
         print('Next fail formula SUCCEEDS\n')
         ; print('Next fail formula FAILS\n')
     ),
