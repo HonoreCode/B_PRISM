@@ -74,7 +74,7 @@ test_loop_next :-
 test_loop_next_fail :- 
     print('Begin loop next fail formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(less,0.0,x(p(b))),0) -> 
+    (sat(probformula(greater,0.0,x(p(b))),0) -> 
         print('Next fail formula SUCCEEDS\n')
         ; print('Next fail formula FAILS\n')
     ),
@@ -177,7 +177,7 @@ test_loop_1_eventually :-
 test_loop_always_eq :-
     print('Begin loop always equal formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(equal,P,g(not(p(b)))),0),print(P),nl -> print('Always formula SUCCEEDS\n')
+    (sat(probformula(equal,0.18402777777777757,g(not(p(b)))),0) -> print('Always formula SUCCEEDS\n')
             ; print('Always formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
@@ -295,7 +295,7 @@ test_dynamic_equal_6_097 :-
 test_dynamic_fail :-
     print('Begin dynamic fail model-checking for the big model with K=7, P=1.0 and strictly_greater operator\n'),
     statistics(runtime,[T0|_]),
-    (\+sat(probformula(strictly_greater,1.0,uk(true,7,p(elect))),0),retractall(dtmc_model_checking_SICS:node(_)) -> print('dynamic fail model-check SUCCEEDS\n')
+    (\+sat(probformula(strictlygreater,1.0,uk(true,7,p(elect))),0),retractall(dtmc_model_checking_SICS:node(_)) -> print('dynamic fail model-check SUCCEEDS\n')
         ; print('Dynamic fail model-check FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),

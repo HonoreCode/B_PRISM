@@ -141,10 +141,10 @@ against(P_phi,P,greater) :-
     P_phi >= P - 0.00000000000000023.   % greater
 against(P_phi,P,strictlyless) :- 
     ground(P),
-    P_phi < P + 0.00000000000000023.   % strictly less
+    P_phi < P.   % strictly less
 against(P_phi,P,strictlygreater) :- 
     ground(P),
-    P_phi > P - 0.00000000000000023.   % strictly greater
+    P_phi > P .   % strictly greater
 against(P_phi,P,not(less)) :- against(P_phi,P,strictlygreater).
 against(P_phi,P,not(greater)) :- against(P_phi,P,strictlyless).
 against(P_phi,P,not(strictlyless)) :- against(P_phi,P,sup).
@@ -156,16 +156,23 @@ against(P_phi,P,not(strictlygreater)) :- against(P_phi,P,less).
 prob_calc(x(F),E,P_phi,Operator,Node) :- 
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
-    prob_calc_sub(x(F),E,P_phi,Operator,Node),!.
+    (prob_calc_sub(x(F),E,P_phi,Operator,Node) ->
+        true
+    ; against(0.0,P_phi,Operator)),!.
 
 % Until Bounded formula
 prob_calc(uk(F,K,G),E,P_phi,Operator,Node) :- 
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
-    ((sat(F,E) ; sat(G,E)),
-    prob_calc_sub(uk(F,K,G),E,P_phi,1.0,Operator,Node))
-    ;   against(0.0,P_phi,Operator),!
-    .
+    (sat(G,E) ->
+        retractall(prob_current(Node,_)),
+        assert(prob_current(Node,1.0)),
+        against(1.0,P_phi,Operator)
+    ; sat(F,E) ->
+        (prob_calc_sub(uk(F,K,G),E,P_phi,1.0,Operator,Node) ->
+            true
+        ; against(0.0,P_phi,Operator))
+    ; against(0.0,P_phi,Operator)),!.
 
 % Until formula 
 % For this formula we have to calculate the probability for
