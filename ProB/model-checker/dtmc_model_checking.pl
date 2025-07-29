@@ -20,6 +20,7 @@
 :- use_module(probsrc(error_manager),[add_error/3, add_internal_error/2, add_warning/3]).
 :- use_module(probltlsrc(ltl_tools),[temporal_parser/3]).
 :- use_module(probsrc(state_space),[find_initialised_states/1, current_state_id/1]).
+:- use_module(probsrc(tools),[start_ms_timer/1, stop_ms_timer_with_msg/2]).
 
 pctl_model_check(Formula,_MaxNodes,Mode,Res) :-
     (temporal_parser(Formula,pctl,PCtlFormula) -> true ; add_error(ctl,'PCTL Parser failed: ',Formula),fail),
@@ -36,9 +37,11 @@ pctl_model_check(Formula,_MaxNodes,Mode,Res) :-
        Start = root
     ),
     format('Checking PCTL formula from state ~w : ~w~n AST: ~w~n Open Probability Variables: ~w~n',[Start,Formula,ProcessedFormula,Bindings]),
+    start_ms_timer(T1),
     (sat(ProcessedFormula,Start)
      -> (Bindings=[] -> Res=true ; Res = solution(Bindings))
-      ; Res = false).
+      ; Res = false),
+      stop_ms_timer_with_msg(T1,'PTCTL model checking').
 
 pre_process_formula(true,true) --> [].
 pre_process_formula(false,false) --> [].
@@ -125,10 +128,14 @@ sat(not(F),E) :- probformula(_,_,_)\=F, sat_not(F,E).
 
 % Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
 % E is a state.
-% Check if the formula is nested 
+% Check if the formula is nested
 
 sat(probformula(Operator,P,Ctl_formula),E) :-
-    (node(Node) -> 
+    Ctl_formula = gk(_,_) ->
+        sat_gk(probformula(Operator,P,Ctl_formula),E)
+    ; Ctl_formula = g(_) ->
+        sat_g(probformula(Operator,P,Ctl_formula),E)
+    ; (node(Node) -> 
         New_Node is Node +1,
         retract(node(Node)),
         assert(node(New_Node)),
@@ -137,14 +144,14 @@ sat(probformula(Operator,P,Ctl_formula),E) :-
         sat_node(probformula(Operator,P,Ctl_formula),E,0),
         retractall(node(_))        /*reinitialize nodes*/
     ).
-    
+
 sat(not(probformula(Operator,P,Ctl_formula)),E) :-
     negate_operator(Operator,NotOp),
     sat(probformula(NotOp,P,Ctl_formula),E).
 
 % Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
 sat(probformula(Operator,P,gk(K,F)),E) :-
-    ground(P) -> 
+    ground(P) ->
         Q is 1-P,
         (Operator = equal ->
         sat(probformula(Operator,Q,fk(K,not(F))),E)
@@ -155,16 +162,57 @@ sat(probformula(Operator,P,gk(K,F)),E) :-
         P is 1-Q)
     .
 
-% Always formula
-sat(probformula(Operator,P,g(F)),E) :-
+% Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
+sat_gk(probformula(Operator,P,gk(K,F)),E) :-
     ground(P) -> 
         Q is 1-P,
         (Operator = equal ->
-        sat(probformula(Operator,Q,f(not(F))),E)
-        ;   sat(not(probformula(Operator,Q,f(not(F)))),E))
+            sat(probformula(Operator,Q,fk(K,not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,fk(K,not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,fk(K,not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,fk(K,not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,fk(K,not(F))),E))
     ; ((Operator = equal ->
-        sat(probformula(Operator,Q,f(not(F))),E)
-        ;   sat(not(probformula(Operator,Q,f(not(F)))),E)),
+            sat(probformula(Operator,Q,fk(K,not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,fk(K,not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,fk(K,not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,fk(K,not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,fk(K,not(F))),E)),
+        P is 1-Q)
+    .
+
+% Always formula
+sat_g(probformula(Operator,P,g(F)),E) :-
+    ground(P) -> 
+        Q is 1-P,
+        (Operator = equal ->
+            sat(probformula(Operator,Q,f(not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,f(not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,f(not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,f(not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,f(not(F))),E))
+    ; ((Operator = equal ->
+            sat(probformula(Operator,Q,f(not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,f(not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,f(not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,f(not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,f(not(F))),E)),
         P is 1-Q)
     .
 
@@ -178,8 +226,7 @@ sat_node(probformula(Operator,P,Ctl_formula),E,Node) :-
         against(P_phi,P,Operator)
     ; Ctl_formula = fk(K,G) ->
         sat_dynamic(probformula(Operator,P,uk(true,K,G)),E,Node)
-    ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node)
-    .
+    ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node).
 
 % Use a different technic depending on the operator
 % This allow notably the calculation of a probability for the equal operator
@@ -189,6 +236,7 @@ sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :-
         prob_calc(Ctl_formula,E,P,Operator,Node)
 
     ;   Operator = equal ->
+            retractall(prob_current(Node,_)),
             (ground(P) ->
                 prob_calc(Ctl_formula,E,P,equal,Node)
 
