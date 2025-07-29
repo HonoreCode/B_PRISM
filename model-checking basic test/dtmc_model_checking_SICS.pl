@@ -48,7 +48,11 @@ sat(not(F),E) :- probformula(_,_,_)\=F,sat_not(F,E).
 % E is a state.
 % Check if the formula is nested 
 sat(probformula(Operator,P,Ctl_formula),E) :-
-    (node(Node) -> 
+    Ctl_formula = gk(_,_) ->
+        sat_gk(probformula(Operator,P,Ctl_formula),E)
+    ; Ctl_formula = g(_) ->
+        sat_g(probformula(Operator,P,Ctl_formula),E)
+    ; (node(Node) -> 
         New_Node is Node +1,
         retract(node(Node)),
         assert(node(New_Node)),
@@ -61,28 +65,56 @@ sat(not(probformula(Operator,P,Ctl_formula)),E) :-
     sat(probformula(not(Operator),P,Ctl_formula),E).
 
 % Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
-sat(probformula(Operator,P,gk(K,F)),E) :-
+sat_gk(probformula(Operator,P,gk(K,F)),E) :-
     ground(P) -> 
         Q is 1-P,
         (Operator = equal ->
-        sat(probformula(Operator,Q,fk(K,not(F))),E)
-        ;   sat(not(probformula(Operator,Q,fk(K,not(F)))),E))
+            sat(probformula(Operator,Q,fk(K,not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,fk(K,not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,fk(K,not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,fk(K,not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,fk(K,not(F))),E))
     ; ((Operator = equal ->
-        sat(probformula(Operator,Q,fk(K,not(F))),E)
-        ;   sat(not(probformula(Operator,Q,fk(K,not(F)))),E)),
+            sat(probformula(Operator,Q,fk(K,not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,fk(K,not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,fk(K,not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,fk(K,not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,fk(K,not(F))),E)),
         P is 1-Q)
     .
 
 % Always formula
-sat(probformula(Operator,P,g(F)),E) :-
+sat_g(probformula(Operator,P,g(F)),E) :-
     ground(P) -> 
         Q is 1-P,
         (Operator = equal ->
-        sat(probformula(Operator,Q,f(not(F))),E)
-        ;   sat(not(probformula(Operator,Q,f(not(F)))),E))
+            sat(probformula(Operator,Q,f(not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,f(not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,f(not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,f(not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,f(not(F))),E))
     ; ((Operator = equal ->
-        sat(probformula(Operator,Q,f(not(F))),E)
-        ;   sat(not(probformula(Operator,Q,f(not(F)))),E)),
+            sat(probformula(Operator,Q,f(not(F))),E)
+        ; Operator = greater ->
+            sat(probformula(less,Q,f(not(F))),E)
+        ; Operator = less ->
+            sat(probformula(greater,Q,f(not(F))),E)
+        ; Operator = strictlygreater ->
+            sat(probformula(strictlyless,Q,f(not(F))),E)
+        ; Operator = strictlyless ->
+            sat(probformula(strictlygreater,Q,f(not(F))),E)),
         P is 1-Q)
     .
 
@@ -107,7 +139,7 @@ sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :-
         prob_calc(Ctl_formula,E,P,Operator,Node)
 
     ;   Operator = equal ->
-            retractall(prob_current(Node,_)),
+            %retractall(prob_current(Node,_)),
             (ground(P) ->
                 prob_calc(Ctl_formula,E,P,equal,Node)
 

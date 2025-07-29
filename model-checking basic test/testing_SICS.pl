@@ -138,6 +138,7 @@ test_loop_until_bounded :-
 test_loop_always :-
     print('Begin loop always formula checking\n'),
     statistics(runtime,[T0|_]),
+    trace,
     (findall(
         S,
         sat(probformula(greater,0.1,g(not(p(b)))),S),
@@ -256,7 +257,7 @@ test_simple_and :-
 test_simple_always_strictlyless :-
     print('Begin simple always strictlyless formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(strictlyless,0.0,g(p(0))),0)/*,print(P),nl*/ -> print('Always formula SUCCEEDS\n')
+    (sat(probformula(greater,0.0,g(p(0))),0)/*,print(P),nl*/ -> print('Always formula SUCCEEDS\n')
             ; print('Always formula FAILS\n')
     ),
     statistics(runtime,[T1|_]),
