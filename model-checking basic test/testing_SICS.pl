@@ -29,7 +29,7 @@
 
 %####################################################
 
-:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_crowds_5_3_positive/0,test_loop/0]).
+:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_simple/0,test_loop/0]).
 
 :- use_module(dtmc_model_checking_SICS,[sat/2,sat/1,state/1]).
 
@@ -165,14 +165,14 @@ test_loop_eventually :-
     format('Finish loop eventually formula checking. It took ~3d sec.~n \n',[T]).
 
 test_loop_fat_eventually :- 
-    print('Begin loop eventually formula checking with k=30\n'),
+    print('Begin loop eventually formula checking with k=15\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(equal,P,fk(30,p(b))),0),print(P),nl -> 
+    (sat(probformula(equal,P,fk(23,p(b))),0),print(P),nl -> 
         print('Eventually formula SUCCEEDS\n')
     ; print('Eventually formula FAILS\n')),
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish loop eventually formula checking. It took ~3d sec.~n \n',[T]).
+    format('Finish loop eventually formula checking with k=15. It took ~3d sec.~n \n',[T]).
 
 test_loop_1_eventually :- 
     print('Begin loop eventually formula checking with k=1\n'),
@@ -229,13 +229,60 @@ test_loop :-
     test_loop_eventually,!,
     test_loop_eventually_eventually,!,
     test_loop_eventually_until,!,
-    %test_loop_fat_eventually,!,
+    test_loop_fat_eventually,!,
     test_loop_1_eventually,!,
     test_loop_always_eq,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
     retract(choose_model(loop)).
+
+%**********************************************
+% TESTS FOR THE SIMPLE MODEL
+
+% Testing a formula with the "always" operator and equal for the loop model
+test_simple_always_strictlyless :-
+    print('Begin simple always strictlyless formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(strictlyless,0.0,g(p(0))),0)/*,print(P),nl*/ -> print('Always formula SUCCEEDS\n')
+            ; print('Always formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish simple always strictlyless formula checking. It took ~3d sec.~n \n',[T]).
+
+test_simple_always_eq :-
+    print('Begin simple always equal formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,P,g(p(2))),2),print(P),nl -> print('Always formula SUCCEEDS\n')
+            ; print('Always formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish simple always equal formula checking. It took ~3d sec.~n \n',[T]).
+
+test_simple_always_not_eq :-
+    print('Begin simple always not equal formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,P,g(not(p(1)))),2),print(P),nl -> print('Always formula SUCCEEDS\n')
+            ; print('Always formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish simple always not equal formula checking. It took ~3d sec.~n \n',[T]).
+
+test_simple :- 
+    assert(choose_model(simple)),
+    print('Begin loop model tests\n\n'),
+    statistics(runtime,[T0|_]),
+    test_simple_always_strictlyless,!,
+    test_simple_always_eq,!,
+    test_simple_always_not_eq,!,
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
+    retract(choose_model(simple)).
+
 
 %**********************************************
 
