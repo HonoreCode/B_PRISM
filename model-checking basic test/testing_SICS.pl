@@ -71,6 +71,17 @@ test_loop_next :-
     T is T1-T0,
     format('Finish loop next formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_next_fail :- 
+    print('Begin loop next fail formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(strictlyless,0.0,x(p(b))),0) -> 
+        print('Next fail formula SUCCEEDS\n')
+        ; print('Next fail formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop next fail formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop_next_next :- 
     print('Begin loop next next formula checking\n'),
     statistics(runtime,[T0|_]),
@@ -155,7 +166,6 @@ test_loop_fat_eventually :-
 test_loop_1_eventually :- 
     print('Begin loop eventually formula checking with k=1\n'),
     statistics(runtime,[T0|_]),
-    trace,
     (sat(probformula(equal,0.0,fk(1,p(b))),0) -> 
         print('Eventually formula SUCCEEDS\n')
     ; print('Eventually formula FAILS\n')),
@@ -199,6 +209,7 @@ test_loop :-
     print('Begin loop model tests\n\n'),
     statistics(runtime,[T0|_]),
     test_loop_next,!,
+    test_loop_next_fail,!,
     test_loop_next_next,!,
     test_loop_until,!,
     test_loop_until_bounded,!,
