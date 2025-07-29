@@ -141,10 +141,10 @@ against(P_phi,P,greater) :-
     P_phi >= P - 0.00000000000000023.   % greater
 against(P_phi,P,strictlyless) :- 
     ground(P),
-    P_phi < P.   % strictly less
+    P_phi + 0.00000000000000023 < P.   % strictly less
 against(P_phi,P,strictlygreater) :- 
     ground(P),
-    P_phi > P .   % strictly greater
+    P_phi - 0.00000000000000023 > P .   % strictly greater
 against(P_phi,P,not(less)) :- against(P_phi,P,strictlygreater).
 against(P_phi,P,not(greater)) :- against(P_phi,P,strictlyless).
 against(P_phi,P,not(strictlyless)) :- against(P_phi,P,sup).

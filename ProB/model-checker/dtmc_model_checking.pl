@@ -144,13 +144,29 @@ sat(not(probformula(Operator,P,Ctl_formula)),E) :-
 
 % Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
 sat(probformula(Operator,P,gk(K,F)),E) :-
-    Q is 1-P,
-    sat(not(probformula(Operator,Q,fk(K,not(F)))),E).
+    ground(P) -> 
+        Q is 1-P,
+        (Operator = equal ->
+        sat(probformula(Operator,Q,fk(K,not(F))),E)
+        ;   sat(not(probformula(Operator,Q,fk(K,not(F)))),E))
+    ; ((Operator = equal ->
+        sat(probformula(Operator,Q,fk(K,not(F))),E)
+        ;   sat(not(probformula(Operator,Q,fk(K,not(F)))),E)),
+        P is 1-Q)
+    .
 
 % Always formula
 sat(probformula(Operator,P,g(F)),E) :-
-    Q is 1-P,
-    sat(not(probformula(Operator,Q,f(not(F)))),E).
+    ground(P) -> 
+        Q is 1-P,
+        (Operator = equal ->
+        sat(probformula(Operator,Q,f(not(F))),E)
+        ;   sat(not(probformula(Operator,Q,f(not(F)))),E))
+    ; ((Operator = equal ->
+        sat(probformula(Operator,Q,f(not(F))),E)
+        ;   sat(not(probformula(Operator,Q,f(not(F)))),E)),
+        P is 1-Q)
+    .
 
 % Check the type of the formula
 sat_node(probformula(Operator,P,Ctl_formula),E,Node) :- 
@@ -207,10 +223,10 @@ against(P_phi,ReferenceP,greater) :-
     P_phi >= P - 0.00000000000000023.   % greater
 against(P_phi,ReferenceP,strictlyless) :-
     ground_number(ReferenceP,P), !,
-    P_phi < P + 0.00000000000000023.   % strictly less
+    P_phi + 0.00000000000000023 < P .   % strictly less
 against(P_phi,ReferenceP,strictlygreater) :-
     ground_number(ReferenceP,P), !,
-    P_phi > P - 0.00000000000000023.   % strictlygreater
+    P_phi - 0.00000000000000023 > P .   % strictlygreater
 against(P_phi,ReferenceP,not(equal)) :- !,
     (ground_number(ReferenceP,P) ->
         (P_phi > P + 0.00000000000000023 ;
@@ -225,7 +241,7 @@ against(P_phi,ReferenceP,not(equal)) :- !,
     ).
 against(P_phi,P,not(less)) :-  !, against(P_phi,P,strictlygreater).
 against(P_phi,P,not(greater)) :-  !, against(P_phi,P,strictlyless).
-against(P_phi,P,not(strictlyless)) :-  !, against(P_phi,P,sup).
+against(P_phi,P,not(strictlyless)) :-  !, against(P_phi,P,greater).
 against(P_phi,P,not(strictlygreater)) :-  !, against(P_phi,P,less).
 against(P1,P2,Op) :- add_internal_error('Illegal comparison operator: ',against(P1,P2,Op)),fail.
 
@@ -245,16 +261,23 @@ ground_number(P,Res) :- atom(P), atom_codes(P,Codes),  % convert atom from parse
 prob_calc(x(F),E,P_phi,Operator,Node) :-
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
-    prob_calc_sub(x(F),E,P_phi,Operator,Node),!.
+    (prob_calc_sub(x(F),E,P_phi,Operator,Node) ->
+        true
+    ; against(0.0,P_phi,Operator)),!.
 
 % Until Bounded formula
 prob_calc(uk(F,K,G),E,P_phi,Operator,Node) :-
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
-    ((sat(F,E) ; sat(G,E)) ->
-        prob_calc_sub(uk(F,K,G),E,P_phi,1.0,Operator,Node)
-    ;   against(0.0,P_phi,Operator)),!
-    .
+    (sat(G,E) ->
+        retractall(prob_current(Node,_)),
+        assert(prob_current(Node,1.0)),
+        against(1.0,P_phi,Operator)
+    ; sat(F,E) ->
+        (prob_calc_sub(uk(F,K,G),E,P_phi,1.0,Operator,Node) ->
+            true
+        ; against(0.0,P_phi,Operator))
+    ; against(0.0,P_phi,Operator)),!.
 
 % Until formula
 % For this formula we have to calculate the probability for

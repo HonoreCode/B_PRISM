@@ -74,7 +74,7 @@ test_loop_next :-
 test_loop_next_sure :- 
     print('Begin loop next sure formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(strictlyless,1.0,x(p(b))),4) -> 
+    (sat(probformula(equal,1.0,x(p(b))),4) -> 
         print('Next sure formula SUCCEEDS\n')
         ; print('Next sure formula FAILS\n')
     ),
@@ -305,14 +305,14 @@ test_dynamic_equal_6_097 :-
     format('Finish dynamic model-checking for the big model with K=6, P=0.95703125 and equal operator. \n It took ~3d sec.~n \n',[T]).
 
 test_dynamic_fail :-
-    print('Begin dynamic fail model-checking for the big model with K=7, P=1.0 and strictly_greater operator\n'),
+    print('Begin dynamic fail model-checking for the big model with K=7, P=1.0 and strictlygreater operator\n'),
     statistics(runtime,[T0|_]),
     (\+sat(probformula(strictlygreater,1.0,uk(true,7,p(elect))),0),retractall(dtmc_model_checking_SICS:node(_)) -> print('dynamic fail model-check SUCCEEDS\n')
         ; print('Dynamic fail model-check FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish dynamic fail model-checking for the big model with K=7, P=1.0 and strictly_greater operator. \n It took ~3d sec.~n \n',[T]).
+    format('Finish dynamic fail model-checking for the big model with K=7, P=1.0 and strictlygreater operator. \n It took ~3d sec.~n \n',[T]).
 
 test_big :- 
     assert(choose_model(big)),
