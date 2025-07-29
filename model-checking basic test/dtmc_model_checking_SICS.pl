@@ -107,6 +107,7 @@ sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :-
         prob_calc(Ctl_formula,E,P,Operator,Node)
 
     ;   Operator = equal ->
+            retractall(prob_current(Node,_)),
             (ground(P) ->
                 prob_calc(Ctl_formula,E,P,equal,Node)
 

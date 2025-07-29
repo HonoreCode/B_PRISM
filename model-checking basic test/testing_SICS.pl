@@ -241,6 +241,18 @@ test_loop :-
 % TESTS FOR THE SIMPLE MODEL
 
 % Testing a formula with the "always" operator and equal for the loop model
+test_simple_and :-
+    print('Begin simple and formula checking'),
+    statistics(runtime,[T0|_]),
+    (sat(and(probformula(equal,0.25,fk(2,p(2))),probformula(equal,P,gk(3,p(banane))))),
+        print(P),nl ->
+            print('AND formula SUCCEEDS\n')
+        ; print('Always formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish simple ands formula checking. It took ~3d sec.~n \n',[T]).
+
 test_simple_always_strictlyless :-
     print('Begin simple always strictlyless formula checking\n'),
     statistics(runtime,[T0|_]),
@@ -251,6 +263,16 @@ test_simple_always_strictlyless :-
     T is T1-T0,
     format('Finish simple always strictlyless formula checking. It took ~3d sec.~n \n',[T]).
 
+test_simple_eventually_bounded :-
+    print('Begin simple eventually_bounded formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,0.25,fk(2,p(2))),0)/*,print(P),nl*/ -> print('Always formula SUCCEEDS\n')
+            ; print('eventually_bounded formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish simple eventually_bounded formula checking. It took ~3d sec.~n \n',[T]).
+
 test_simple_always_eq :-
     print('Begin simple always equal formula checking\n'),
     statistics(runtime,[T0|_]),
@@ -260,6 +282,16 @@ test_simple_always_eq :-
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish simple always equal formula checking. It took ~3d sec.~n \n',[T]).
+
+test_simple_always_bounded:-
+    print('Begin simple always bounded formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,P,gk(3,p(banane))),2),print(P),nl -> print('Always formula SUCCEEDS\n')
+            ; print('Always bounded formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish simple always bounded formula checking. It took ~3d sec.~n \n',[T]).
 
 test_simple_always_not_eq :-
     print('Begin simple always not equal formula checking\n'),
@@ -275,7 +307,10 @@ test_simple :-
     assert(choose_model(simple)),
     print('Begin loop model tests\n\n'),
     statistics(runtime,[T0|_]),
+    test_simple_and,!,
     test_simple_always_strictlyless,!,
+    test_simple_eventually_bounded,!,
+    test_simple_always_bounded,!,
     test_simple_always_eq,!,
     test_simple_always_not_eq,!,
     statistics(runtime,[T1|_]),
@@ -488,4 +523,4 @@ test_crowds_10_3 :-
 partial_test :- test_loop,test_big.
 
 % to do a full test (~10 sec)
-full_test :- test_loop,!,test_big,!,test_crowds_5_3,!,test_crowds_10_3.
+full_test :- test_loop,!,test_big,!,test_simple,!,test_crowds_5_3,!,test_crowds_10_3.
