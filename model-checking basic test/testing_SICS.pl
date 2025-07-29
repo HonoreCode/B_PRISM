@@ -29,7 +29,7 @@
 
 %####################################################
 
-:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_crowds_5_3_positive/0]).
+:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_crowds_5_3_positive/0,test_loop/0]).
 
 :- use_module(dtmc_model_checking_SICS,[sat/2,sat/1,state/1]).
 
@@ -142,6 +142,38 @@ test_loop_eventually :-
     T is T1-T0,
     format('Finish loop eventually formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_fat_eventually :- 
+    print('Begin loop eventually formula checking with k=30\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,P,fk(30,p(b))),0),print(P),nl -> 
+        print('Eventually formula SUCCEEDS\n')
+    ; print('Eventually formula FAILS\n')),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop eventually formula checking. It took ~3d sec.~n \n',[T]).
+
+test_loop_1_eventually :- 
+    print('Begin loop eventually formula checking with k=1\n'),
+    statistics(runtime,[T0|_]),
+    trace,
+    (sat(probformula(equal,0.0,fk(1,p(b))),0) -> 
+        print('Eventually formula SUCCEEDS\n')
+    ; print('Eventually formula FAILS\n')),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop eventually formula checking with k=1. It took ~3d sec.~n \n',[T]).
+
+% Testing a formula with the "always" operator and equal for the loop model
+test_loop_always_eq :-
+    print('Begin loop always equal formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,P,g(not(p(b)))),0),print(P),nl -> print('Always formula SUCCEEDS\n')
+            ; print('Always formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop always equal formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop_eventually_eventually :-
     print('Begin loop eventually eventually formula checking\n'),
     statistics(runtime,[T0|_]),
@@ -174,6 +206,9 @@ test_loop :-
     test_loop_eventually,!,
     test_loop_eventually_eventually,!,
     test_loop_eventually_until,!,
+    %test_loop_fat_eventually,!,
+    test_loop_1_eventually,!,
+    test_loop_always_eq,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
