@@ -138,7 +138,6 @@ test_loop_until_bounded :-
 test_loop_always :-
     print('Begin loop always formula checking\n'),
     statistics(runtime,[T0|_]),
-    trace,
     (findall(
         S,
         sat(probformula(greater,0.1,g(not(p(b)))),S),
