@@ -176,101 +176,6 @@
       "visBVisualisations": []
     },
     {
-      "name": "Crowds_protocol",
-      "description": "",
-      "location": "Crowds_protocol/Crowds_protocol.mch",
-      "lastUsedPreferenceName": "default",
-      "validationTasks": [
-        {
-          "taskType": "MODEL_CHECKING",
-          "searchStrategy": "MIXED_BF_DF",
-          "options": [
-            "FIND_INVARIANT_VIOLATIONS"
-          ],
-          "selected": true
-        },
-        {
-          "taskType": "SIMULATION",
-          "id": "Positive test",
-          "simulationPath": "SimBCrowdsProtocol.json",
-          "type": "HYPOTHESIS_TEST",
-          "information": {
-            "ENDING_PREDICATE": "runCount=0 & new=TRUE",
-            "SIGNIFICANCE": 0.05,
-            "PROBABILITY": 0.068,
-            "MAX_STEPS_BEFORE_PROPERTY": 0,
-            "EXECUTIONS": 200,
-            "PREDICATE": "observe(0)>1",
-            "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
-            "CHECKING_TYPE": "PREDICATE_FINAL"
-          }
-        },
-        {
-          "taskType": "SIMULATION",
-          "id": "False positive test",
-          "simulationPath": "SimBCrowdsProtocol.json",
-          "type": "HYPOTHESIS_TEST",
-          "information": {
-            "ENDING_PREDICATE": "runCount=0 & new=TRUE",
-            "SIGNIFICANCE": 0.005,
-            "PROBABILITY": 0.03,
-            "MAX_STEPS_BEFORE_PROPERTY": 0,
-            "EXECUTIONS": 200,
-            "PREDICATE": "dom(observe |>> {0}) /= {}",
-            "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
-            "CHECKING_TYPE": "PREDICATE_FINAL"
-          }
-        },
-        {
-          "taskType": "MODEL_CHECKING",
-          "searchStrategy": "MIXED_BF_DF",
-          "options": [
-            "FIND_DEADLOCKS",
-            "IGNORE_OTHER_ERRORS"
-          ],
-          "selected": true
-        },
-        {
-          "taskType": "SIMULATION",
-          "simulationPath": "Crowds_protocol/SimBCrowdsProtocol.json",
-          "type": "HYPOTHESIS_TEST",
-          "information": {
-            "SIGNIFICANCE": 0.01,
-            "PROBABILITY": 0.037,
-            "MAX_STEPS_BEFORE_PROPERTY": 0,
-            "EXECUTIONS": 500,
-            "PREDICATE": "observe(0)>1",
-            "STEPS_PER_EXECUTION": 100,
-            "HYPOTHESIS_CHECKING_TYPE": "RIGHT_TAILED",
-            "CHECKING_TYPE": "PREDICATE_FINAL"
-          }
-        },
-        {
-          "taskType": "SIMULATION",
-          "id": "thetask",
-          "simulationPath": "Crowds_protocol/SimBCrowdsProtocol.json",
-          "type": "HYPOTHESIS_TEST",
-          "information": {
-            "SIGNIFICANCE": 1.0E-4,
-            "PROBABILITY": 0.13834,
-            "MAX_STEPS_BEFORE_PROPERTY": 0,
-            "EXECUTIONS": 500,
-            "PREDICATE": "observe(0)>1",
-            "STEPS_PER_EXECUTION": 100,
-            "HYPOTHESIS_CHECKING_TYPE": "LEFT_TAILED",
-            "CHECKING_TYPE": "PREDICATE_FINAL"
-          }
-        }
-      ],
-      "ltlPatterns": [],
-      "simulations": [
-        {
-          "path": "Crowds_protocol/SimBCrowdsProtocol.json"
-        }
-      ],
-      "visBVisualisations": []
-    },
-    {
       "name": "simple_protocol_system",
       "description": "",
       "location": "simple_protocol/simple_protocol_system.mch",
@@ -446,6 +351,16 @@
         }
       ],
       "visBVisualisations": []
+    },
+    {
+      "name": "Crowds_protocol_B_machine",
+      "description": "",
+      "location": "model_checker_ProB/models/Crowds_protocol/Crowds_protocol_B_machine.mch",
+      "lastUsedPreferenceName": "default",
+      "validationTasks": [],
+      "ltlPatterns": [],
+      "simulations": [],
+      "visBVisualisations": []
     }
   ],
   "requirements": [],
@@ -453,7 +368,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-06-25T15:05:06.852590200Z",
+    "savedAt": "2025-07-30T09:30:21.491732200Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
