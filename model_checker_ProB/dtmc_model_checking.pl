@@ -8,12 +8,12 @@
 % Tree Logic (PCTL) formulas over Discrete-Time Markov Chains (DTMC)
 % written by Honore Marmion
 
-% Working on SICStus prolog 4.10
+% Working on SICStus prolog 4.10 & ProB nightly version of 28.07.25
 
 %###############################################
 
 :- module(dtmc_model_checking,[pctl_model_check/4,
-                               sat/1, sat/2,search_prob0/3,prob0/3,prob1/3,table_prob0/2,state/1]).
+                               sat/1, sat/2, state/1]).
 :- use_module(library(clpr),[{}/1]).
 
 
@@ -90,6 +90,9 @@ state(X) :- visited_expression_id(X).
 % ?- use_module(extension('markov/dtmc_model_checking.pl')).
 % ?- sat(prob_formula(eq,P,f(p(xtl_predicate_check(finished))))).
 
+% See examples folder and seek for .P extensions for more
+
+
 %PCTL Model-checking
 
 % This term allow to handle nested formulas in case of dynamic model-checking
@@ -126,10 +129,12 @@ sat(implies(F,G),E) :- sat(or(not(F),G),E).
 sat(equivalence(F,G),E) :- sat(and(implies(F,G),implies(G,F)),E).
 sat(not(F),E) :- probformula(_,_,_)\=F, sat_not(F,E).
 
-% Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
+% Probabilistic-formula cases. Operator is =, < >,<= or >=. 
+%P is a number between 0 and 1 (or a Variable),
 % E is a state.
-% Check if the formula is nested
 
+% Check if the formula is nested, and handle the 
+% case of Always (g) and Always-bounded (gk) operators
 sat(probformula(Operator,P,Ctl_formula),E) :-
     Ctl_formula = gk(_,_) ->
         sat_gk(probformula(Operator,P,Ctl_formula),E)
@@ -145,24 +150,13 @@ sat(probformula(Operator,P,Ctl_formula),E) :-
         retractall(node(_))        /*reinitialize nodes*/
     ).
 
+% Negation of a probabilistic formula
 sat(not(probformula(Operator,P,Ctl_formula)),E) :-
     negate_operator(Operator,NotOp),
     sat(probformula(NotOp,P,Ctl_formula),E).
 
 % Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
-sat(probformula(Operator,P,gk(K,F)),E) :-
-    ground(P) ->
-        Q is 1-P,
-        (Operator = equal ->
-        sat(probformula(Operator,Q,fk(K,not(F))),E)
-        ;   sat(not(probformula(Operator,Q,fk(K,not(F)))),E))
-    ; ((Operator = equal ->
-        sat(probformula(Operator,Q,fk(K,not(F))),E)
-        ;   sat(not(probformula(Operator,Q,fk(K,not(F)))),E)),
-        P is 1-Q)
-    .
-
-% Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
+% We had to use a different way of negating comparison operators in order
 sat_gk(probformula(Operator,P,gk(K,F)),E) :-
     ground(P) -> 
         Q is 1-P,
@@ -229,7 +223,7 @@ sat_node(probformula(Operator,P,Ctl_formula),E,Node) :-
     ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node).
 
 % Use a different technic depending on the operator
-% This allow notably the calculation of a probability for the equal operator
+% This allow especially the calculation of a probability for the equal operator
 sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :-
     ((Operator = greater ; Operator= strictlygreater) ->
         ground(P),

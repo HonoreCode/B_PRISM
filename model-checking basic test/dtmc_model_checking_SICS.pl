@@ -10,7 +10,7 @@
 
 %###############################################
 
-:- module(dtmc_model_checking_SICS,[sat/2,sat/1,search_prob0/3,prob0/3,prob1/3,table_prob0/2,state/1]).
+:- module(dtmc_model_checking_SICS,[sat/2,sat/1,state/1]).
 :- use_module(library(clpr),[{}/1]).
 
 :- use_module('models/translate_model_SICS',[start/1,prop/2,state/1,trans/3]).
@@ -44,9 +44,12 @@ sat(or(_F,G),E) :- sat(G,E).
 sat(implies(F,G),E) :- sat(or(not(F),G),E).
 sat(not(F),E) :- probformula(_,_,_)\=F,sat_not(F,E).
 
-% Probabilistic-formula cases. Operator is =, < >,<= or >=. P is a number between 0 and 1 (or a Variable),
+% Probabilistic-formula cases. Operator is =, < >,<= or >=. 
+%P is a number between 0 and 1 (or a Variable),
 % E is a state.
-% Check if the formula is nested 
+
+% Check if the formula is nested, and handle the 
+% case of Always (g) and Always-bounded (gk) operators
 sat(probformula(Operator,P,Ctl_formula),E) :-
     Ctl_formula = gk(_,_) ->
         sat_gk(probformula(Operator,P,Ctl_formula),E)
@@ -61,6 +64,8 @@ sat(probformula(Operator,P,Ctl_formula),E) :-
         sat_node(probformula(Operator,P,Ctl_formula),E,0),
         retractall(node(_))        /*reinitialize nodes*/
     ).
+
+% Negation of a probabilistic formula
 sat(not(probformula(Operator,P,Ctl_formula)),E) :-
     sat(probformula(not(Operator),P,Ctl_formula),E).
 
@@ -132,7 +137,7 @@ sat_node(probformula(Operator,P,Ctl_formula),E,Node) :-
     .
 
 % Use a different technic depending on the operator
-% This allow notably the calculation of a probability for the equal operator
+% This allow especially the calculation of a probability for the equal operator
 sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :- 
     ((Operator = greater ; Operator= strictlygreater) ->
         ground(P),
