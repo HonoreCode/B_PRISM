@@ -1,6 +1,6 @@
 %####################################################*
 
-% Test file to verify some formulas over some models :
+% Test file to verify some formulas over the following models :
 
 %    - "loop" is a small model with a loop
 
@@ -28,7 +28,7 @@
 
 %####################################################
 
-:- module(testing_SICS,[choose_model/1,partial_test/0,full_test/0,test_simple/0,test_loop/0]).
+:- module(testing_SICS,[choose_model/1,full_test/0,test_simple/0,test_loop/0,test_big/0,test_crowds_5_3/0,test_crowds_10_3/0]).
 
 :- use_module(dtmc_model_checking_SICS,[sat/2,sat/1,state/1]).
 
@@ -589,8 +589,5 @@ test_crowds_10_3 :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% to test the first two models (~1 sec)
-partial_test :- test_loop,test_big.
-
-% to do a full test (~10 sec)
+% to do a full test
 full_test :- test_loop,!,test_big,!,test_simple,!,test_crowds_5_3,!,test_crowds_10_3.

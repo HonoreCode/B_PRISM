@@ -2,6 +2,7 @@
 
 % This is a model-checker verifying Probabilistic Computation
 % Tree Logic (PCTL) formulas over Discrete-Time Markov Chains (DTMC)
+% This model-checker is the one used by ProB
 
 % The algorithm was greatly based on the PRISM's one.
 % See http://www.prismmodelchecker.org/lectures/pmc/
