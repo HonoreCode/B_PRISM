@@ -18,7 +18,7 @@
 
 :- module(crowds_10_3_to_LTS_SICS,[start_crowds_10_3/1,prop_crowds_10_3/2,state_crowds_10_3/1,trans_crowds_10_3/3]).
 
-:- consult(slep_state_space_crowds103).
+:- consult('../Generated_state_spaces/slep_state_space_crowds103').
 
 %**************************************
 % Formulas to try on :

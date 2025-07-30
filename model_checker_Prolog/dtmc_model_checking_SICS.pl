@@ -13,7 +13,7 @@
 :- module(dtmc_model_checking_SICS,[sat/2,sat/1,state/1]).
 :- use_module(library(clpr),[{}/1]).
 
-:- use_module('models/translate_model_SICS',[start/1,prop/2,state/1,trans/3]).
+:- use_module(translate_model_SICS,[start/1,prop/2,state/1,trans/3]).
 
 %PCTL Model-checking
 

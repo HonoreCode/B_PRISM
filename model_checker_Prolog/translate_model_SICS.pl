@@ -3,16 +3,16 @@
 
 :- module(translate_model_SICS,[start/1,prop/2,state/1,trans/3]).
 
-:- use_module(leader_election_to_LTS_SICS,[start_big/1,prop_big/2,state_big/1,trans_big/3]).
-:- use_module(simplemodelloop,[start_loop/1,prop_loop/2,state_loop/1,trans_loop/3]).
-:- use_module(simplemodel,[start_simple/1,prop_simple/2,state_simple/1,trans_simple/3]).
-:- use_module(crowds_5_3_to_LTS_SICS,[start_crowds_5_3/1,prop_crowds_5_3/2,state_crowds_5_3/1,trans_crowds_5_3/3]).
-:- use_module(crowds_10_3_to_LTS_SICS,[start_crowds_10_3/1,prop_crowds_10_3/2,state_crowds_10_3/1,trans_crowds_10_3/3]).
+:- use_module('../examples/synchronous_leader_election/Prolog/leader_election_to_LTS_SICS',[start_big/1,prop_big/2,state_big/1,trans_big/3]).
+:- use_module('../examples/simple_loop/Prolog/simplemodelloop',[start_loop/1,prop_loop/2,state_loop/1,trans_loop/3]).
+:- use_module('../examples/simple_model/Prolog/simplemodel',[start_simple/1,prop_simple/2,state_simple/1,trans_simple/3]).
+:- use_module('../examples/crowds_protocol/Prolog/crowds_5_3_to_LTS_SICS',[start_crowds_5_3/1,prop_crowds_5_3/2,state_crowds_5_3/1,trans_crowds_5_3/3]).
+:- use_module('../examples/crowds_protocol/Prolog/crowds_10_3_to_LTS_SICS',[start_crowds_10_3/1,prop_crowds_10_3/2,state_crowds_10_3/1,trans_crowds_10_3/3]).
 
 %########################################################
 
 % This part differ depending on your prolog implementation
-:- use_module('../testing_SICS',[choose_model/1]).
+:- use_module(testing_SICS,[choose_model/1]).
 
 %########################################################
 

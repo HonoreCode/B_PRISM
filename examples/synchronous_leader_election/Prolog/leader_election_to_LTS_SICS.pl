@@ -15,7 +15,7 @@
 
 :- module(leader_election_to_LTS_SICS,[start_big/1,prop_big/2,state_big/1,trans_big/3]).
 
-:- consult(slep_state_space).
+:- consult('../Generated_state_spaces/slep_state_space').
 
 %**************************************
 % Formulas to try on :
