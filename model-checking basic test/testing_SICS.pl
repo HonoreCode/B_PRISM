@@ -184,6 +184,17 @@ test_loop_1_eventually :-
     T is T1-T0,
     format('Finish loop eventually formula checking with k=1. It took ~3d sec.~n \n',[T]).
 
+test_loop_eventually_false :- 
+    print('Begin loop false eventually formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,0.0,f(p(banana))),0) -> 
+        print('Eventually false formula SUCCEEDS\n')
+    ; print('Eventually false formula FAILS\n')),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop false eventually formula checking. It took ~3d sec.~n \n',[T]).
+
+
 % Testing a formula with the "always" operator and equal for the loop model
 test_loop_always_eq :-
     print('Begin loop always equal formula checking\n'),
@@ -276,6 +287,7 @@ test_loop :-
     test_loop_always_negation,!,
     test_loop_eventually_bounded_negation,!,
     test_loop_always_eq_not_not,!,
+    test_loop_eventually_false,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
