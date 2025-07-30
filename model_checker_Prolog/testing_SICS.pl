@@ -1,8 +1,10 @@
 %####################################################*
 
-% Test file to verify some formulas over 2 models :
+% Test file to verify some formulas over some models :
 
 %    - "loop" is a small model with a loop
+
+%    - "small" is an even smaller model
 
 %    - "big" is a big model from Prism's Benchmark suite :
 %          (Synchronous leader election protocol,
@@ -19,10 +21,7 @@
 %           parameters : PF=0.8, badC=0.091, TotalRuns=3, CrowdSize=10
 %           see http://www.prismmodelchecker.org/casestudies/crowds.php)
 
-%   - If you want to test all the four models, run "?- full_test."
-
-%   - If you want to do a quick test on the first two models,
-%   run "?- partial_test."
+%   - If you want to test all the different models, run "?- full_test."
 
 
 %                WORKING WITH SICSTUS
