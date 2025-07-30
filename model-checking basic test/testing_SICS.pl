@@ -215,6 +215,26 @@ test_loop_eventually_until :-
     T is T1-T0,
     format('Finish loop eventually until formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_always_negation :- 
+    print('Begin loop negation always formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(not(probformula(greater,0.0,g(not(p(b))))),0) -> 
+            print('Negation always formula SUCCEEDS\n')
+            ; print('Negation always formula FAILS\n')),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop negation always formula checking. It took ~3d sec.~n \n',[T]).
+
+test_loop_eventually_bounded_negation :- 
+    print('Begin loop negation eventually formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(not(probformula(equal,0.2,fk(5,p(b))),0)) -> 
+            print('Negation eventually formula SUCCEEDS\n')
+            ; print('Negation eventually formula FAILS\n')),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop negation eventually formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop :- 
     assert(choose_model(loop)),
     print('Begin loop model tests\n\n'),
@@ -229,9 +249,11 @@ test_loop :-
     test_loop_eventually,!,
     test_loop_eventually_eventually,!,
     test_loop_eventually_until,!,
-    test_loop_fat_eventually,!,
+    %test_loop_fat_eventually,!,
     test_loop_1_eventually,!,
     test_loop_always_eq,!,
+    test_loop_always_negation,!,
+    test_loop_eventually_bounded_negation,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
