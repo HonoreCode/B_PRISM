@@ -154,8 +154,9 @@ sat(probformula(Operator,P,Ctl_formula),E) :-
         retractall(node(_))        /*reinitialize nodes*/
     ).
 
-% Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
-% We had to use a different way of negating comparison operators in order
+% Always bounded formula, we use the opposite probabilistic event of fk(K,not(F))
+% and the associed opposite operator (different than the logically diferent one,
+% which is here called 'negation')
 sat_gk(probformula(Operator,P,gk(K,F)),E) :-
     ground(P) -> 
         opposed_operator(Operator,Opp_Operator),
@@ -179,7 +180,9 @@ sat_g(probformula(Operator,P,g(F)),E) :-
         P is 1-Q
     .
 
-% Check the type of the formula
+% Check the probabilistic operator used.
+% The Eventually operator can be written as an Until Operator.
+% And we use a non-dynamic model-checker for unbounded until formulas
 sat_node(probformula(Operator,P,Ctl_formula),E,Node) :- 
     Ctl_formula = u(F,G) ->
         prob_calc(u(F,G),E,P_phi,Node),
@@ -191,15 +194,18 @@ sat_node(probformula(Operator,P,Ctl_formula),E,Node) :-
         sat_dynamic(probformula(Operator,P,uk(true,K,G)),E,Node)
     ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node).
 
-% Use a different technic depending on the operator
-% This allow especially the calculation of a probability for the equal operator
+
+% The dynamic model-checker sum out the probabilities of a path
+% and compare it to a given value.
+% For this reason, we use failure argument to model-check formulas
+% with a less operator
 sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :-
     ((Operator = greater ; Operator= strictlygreater) ->
         ground(P),
         prob_calc(Ctl_formula,E,P,Operator,Node)
 
     ;   Operator = equal ->
-            retractall(prob_current(Node,_)),
+            retractall(prob_current(Node,_)), % Not necessary
             (ground(P) ->
                 prob_calc(Ctl_formula,E,P,equal,Node)
 
@@ -207,17 +213,14 @@ sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :-
                     P=1.0
                 ;   prob_current(Node,P)))
 
-    ;   Operator = less ->
+    ;   (Operator = less ; Operator = strictlyless) ->
             ground(P),
-            \+(prob_calc(Ctl_formula,E,P,strictlygreater,Node))
-
-    ;   Operator = strictlyless ->
-            ground(P),
-            \+(prob_calc(Ctl_formula,E,P,greater,Node))
+            negate_operator(Operator,Neg_Operator),
+            \+(prob_calc(Ctl_formula,E,P,Neg_Operator,Node))
     ).
 
-% Compare different formulas using a specific operator
 
+% Compare different probabilities using a specific operator
 % For the equal comparison, we compare the results using epsilon precision in case
 % of a given probability
 against(P_phi,ReferenceP,equal) :- !,
@@ -259,11 +262,16 @@ against(P1,P2,Op) :- add_internal_error('Illegal comparison operator: ',against(
 % Used to compute the logical negation of
 % a probabilistic formula
 % General use : negate_operator(Op,not(Op))
-negate_operator(equal,different).
 negate_operator(less,strictlygreater).
 negate_operator(strictlygreater,less).
 negate_operator(greater,strictlyless).
 negate_operator(strictlyless,greater).
+
+% As in PRISM, the negation of an equal comparison
+% will raise an error. Note that, however,
+% double negation is allowed
+negate_operator(equal,different). 
+
 
 % Used for formulas with 'Always' (G) Operator
 opposed_operator(equal,equal).
@@ -278,10 +286,11 @@ ground_number(P,Res) :- number(P),!,Res=P.
 ground_number(P,Res) :- atom(P), atom_codes(P,Codes),  % convert atom from parser into number
    safe_number_codes(Nr,Codes),!,Res=Nr.
 
+%*************************************************
 
-% Next formula
 :- dynamic prob_current/2.
 
+% Next formula
 prob_calc(x(F),E,P_phi,Operator,Node) :-
     retractall(prob_current(Node,_)),
     assert(prob_current(Node,0.0)),
@@ -310,7 +319,6 @@ prob_calc(u(F,G),E,P_phi,Node) :-
     retractall(table_prob0(_,_,Node)),
     retractall(table_prob1(_,_,Node)),
     prob_calc_u1(F,G,List_S,P_vect,Node),
-    state(E),
     (find_prob_u(List_S,P_vect,E,P) -> P_phi=P
         ; P_phi=0.0
     ).
@@ -344,7 +352,23 @@ prob_calc_sub(uk(F,K_new,G),E,P_phi,P_trace,Operator,Node) :-
             prob_calc_sub(uk(F,K,G),S,P_phi,P_trace_new,Operator,Node)
     ).
 
-% 1rst precomputation for the until formula
+
+%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+% Note that a completely different approach had been 
+% tried, which is faster in some benchmarks and
+% slower in some other. We decided to keep this
+% one for the final model-checker but the other
+% precomputation algorithm should be available in
+% the github of the project for those interested
+
+
+% ~ ~ ~ ~ 1rst precomputation for the until formula ~ ~ ~ ~
+
+% This is a graph-based computation to find 
+% all the states that can reach a state 
+% verifying a property G without leaving
+% states verifying a property F
 
 :- dynamic table_prob0/3.
 
@@ -366,11 +390,20 @@ prob0(F,G,E1,Node) :-
         retract(table_prob0(E1,computing,Node))
     ),!.
 
+% This part could definitely be improved to 
+% reduce computation time
 search_prob0(F,G,E,Node):-
     retractall(table_prob0(_,computing,Node)),
     prob0(F,G,E,Node).
 
-% 2nd precomputation for the until formula
+
+% ~ ~ ~ ~ 2nd precomputation for the until formula ~ ~ ~ ~
+
+% This is a graph-based computation to find 
+% all the states that can reach a state 
+% which IS NOT verifying a property G without 
+% leaving states verifying a property F
+
 :- dynamic table_prob1/3.
 
 prob1(_F,_G,E,Node) :-
@@ -395,6 +428,12 @@ prob1(F,G,E1,Node) :-
 search_prob1(F,G,E,Node):-
     retractall(table_prob1(_,computing,Node)),
     prob1(F,G,E,Node).
+
+
+%//////////////////////////////////////////////
+
+
+% Until formula computation
 
 % P_vect is the vector of non-null probabilities
 % for the until formula

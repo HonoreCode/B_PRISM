@@ -71,6 +71,17 @@ test_loop_next :-
     T is T1-T0,
     format('Finish loop next formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_next_sup :- 
+    print('Begin loop next greater formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(greater,0.8,x(probformula(equal,0.5,x(p(b))))),0) -> 
+        print('Next greater formula SUCCEEDS\n')
+        ; print('Next greater formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop next greater formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop_next_sure :- 
     print('Begin loop next sure formula checking\n'),
     statistics(runtime,[T0|_]),
@@ -108,7 +119,7 @@ test_loop_next_next :-
 test_loop_until :- 
     print('Begin loop until formula checking\n'),
     statistics(runtime,[T0|_]),
-    findall(P,sat(probformula(equal,P,u(not(p(a)),p(b))),_S),List_P),
+    findall(P,(state(S),sat(probformula(equal,P,u(not(p(a)),p(b))),S)),List_P),
     (compare_floats_list(
         List_P,
         [0.783333333333334,0.0,0.870370370370371,0.0,1.0,0.944444444444445]
@@ -140,7 +151,10 @@ test_loop_always :-
     statistics(runtime,[T0|_]),
     (findall(
         S,
-        sat(probformula(greater,0.1,g(not(p(b)))),S),
+        (
+            state(S),
+            sat(probformula(greater,0.1,g(not(p(b)))),S)
+        ),
         [0,1,2,3]
         ) -> print('Always formula SUCCEEDS\n')
             ; print('Always formula FAILS\n')
@@ -272,6 +286,7 @@ test_loop :-
     statistics(runtime,[T0|_]),
     test_loop_next,!,
     test_loop_next_fail,!,
+    test_loop_next_sup,!,
     test_loop_next_sure,!,
     test_loop_next_next,!,
     test_loop_until,!,
