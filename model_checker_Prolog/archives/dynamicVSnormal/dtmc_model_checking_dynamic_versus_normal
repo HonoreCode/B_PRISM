@@ -1,0 +1,227 @@
+%###############################################
+
+% This version of the model-checker serve to compare 
+% between the dynamic model-checking and the previous
+% model-checker, which use findall, and is called here
+% as the "normal" one
+
+%###############################################
+
+:- module(dtmc_model_checking_SICS,[sat/2,sat/1,state/1]).
+:- use_module(library(clpr),[{}/1]).
+
+:- use_module(translate_model_SICS,[start/1,prop/2,state/1,trans/3]).
+
+%PCTL Model-checking
+
+
+% This term allow to handle nested formulas in case of dynamic model-checking
+:- dynamic node/1.
+
+
+sat(Formula):-start(E),sat(Formula,E).
+
+% Classic cases
+
+sat_not(false,_E).
+sat_not(true,_E) :- fail.
+sat_not(p(Property),E) :- \+(prop(Property,E)).
+sat_not(and(F,_G),E) :- sat_not(F,E).
+sat_not(and(_F,G),E) :- sat_not(G,E).
+sat_not(or(F,G),E) :- sat_not(F,E),sat_not(G,E).
+sat_not(implies(F,G),E) :- sat(not(or(not(F),G)),E).
+sat_not(not(F),E) :- sat(F,E).
+
+sat(true,_E).
+sat(false,_E):-fail.
+sat(p(Property),E) :- prop(Property,E).
+sat(and(F,G),E) :- sat(F,E), sat(G,E).
+sat(or(F,_G),E) :- sat(F,E).
+sat(or(_F,G),E) :- sat(G,E).
+sat(implies(F,G),E) :- sat(or(not(F),G),E).
+sat(not(F),E) :- 
+    F = probformula(Operator,P,Ctl_formula) ->
+        negate_operator(Operator,Neg_Operator),
+        sat(probformula(Neg_Operator,P,Ctl_formula))
+    ; sat_not(F,E).
+
+% Probabilistic-formula cases. Operator is =, < >,<= or >=. 
+%P is a number between 0 and 1 (or a Variable),
+% E is a state.
+
+% Check if the formula is nested, and handle the 
+% case of Always (g) and Always-bounded (gk) operators
+sat(probformula(Operator,P,Ctl_formula),E) :-
+    Ctl_formula = dyn(gk(_,_)) ->
+        sat_dyngk(probformula(Operator,P,Ctl_formula),E)
+    ; Ctl_formula = gk(_,_) ->
+        sat_gk(probformula(Operator,P,Ctl_formula),E)
+    ; (node(Node) -> 
+        New_Node is Node +1,
+        retract(node(Node)),
+        assert(node(New_Node)),
+        sat_node(probformula(Operator,P,Ctl_formula),E,New_Node)
+    ;   assert(node(0)),
+        sat_node(probformula(Operator,P,Ctl_formula),E,0),
+        retractall(node(_))        /*reinitialize nodes*/
+    ).
+
+% Always bounded formula, we use the opposite probabilistic event of fk(K,not(F))
+% and the associed opposite operator (different than the logically diferent one,
+% which is here called 'negation')
+sat_gk(probformula(Operator,P,gk(K,F)),E) :-
+    ground(P) -> 
+        opposed_operator(Operator,Opp_Operator),
+        Q is 1-P,
+        sat(probformula(Opp_Operator,Q,fk(K,not(F))),E)
+
+    ;   opposed_operator(Operator,Opp_Operator),
+        sat(probformula(Opp_Operator,Q,fk(K,not(F))),E),
+        P is 1-Q
+    .
+
+sat_dyngk(probformula(Operator,P,dyn(gk(K,F))),E) :-
+    ground(P) -> 
+        opposed_operator(Operator,Opp_Operator),
+        Q is 1-P,
+        sat(probformula(Opp_Operator,Q,dyn(fk(K,not(F)))),E)
+
+    ;   opposed_operator(Operator,Opp_Operator),
+        sat(probformula(Opp_Operator,Q,dyn(fk(K,not(F)))),E),
+        P is 1-Q
+    .
+
+% Check the type of the formula
+sat_node(probformula(Operator,P,Ctl_formula),E,Node) :- 
+    Ctl_formula = fk(K,G) ->
+        sat_dynamic(probformula(Operator,P,uk(true,K,G)),E,Node)
+    ; Ctl_formula = dyn(fk(K,G)) ->
+        sat_dynamic(probformula(Operator,P,dyn(uk(true,K,G))),E,Node)
+    ;   sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node)
+    .
+
+% The dynamic model-checker sum out the probabilities of a path
+% and compare it to a given value.
+% For this reason, we use failure argument to model-check formulas
+% with a less operator
+sat_dynamic(probformula(Operator,P,Ctl_formula),E,Node) :- 
+    ((Operator = greater ; Operator= strictlygreater) ->
+        ground(P),
+        prob_calc(Ctl_formula,E,P,Operator,Node)
+
+    ;   Operator = equal ->
+            %retractall(prob_current(Node,_)),
+            (ground(P) ->
+                prob_calc(Ctl_formula,E,P,equal,Node)
+
+            ;   (prob_calc(Ctl_formula,E,1.0,equal,Node) ->
+                    P=1.0
+                ;   prob_current(Node,P)))
+
+    ;   Operator = less ->
+            ground(P),
+            \+(prob_calc(Ctl_formula,E,P,strictlygreater,Node))
+
+    ;   (Operator = less ; Operator = strictlyless) ->
+            ground(P),
+            negate_operator(Operator,Neg_Operator),
+            \+(prob_calc(Ctl_formula,E,P,Neg_Operator,Node))
+    ).
+
+
+% Compare different probabilities using a specific operator
+% For the equal comparison, we compare the results using epsilon precision in case
+% of a given probability
+against(P_phi,P,equal) :- 
+    ground(P) ->
+        P_phi =< P + 0.00000000000000023,
+        P =< P_phi + 0.00000000000000023
+    ;   P = P_phi
+    .
+against(P_phi,P,less) :- 
+    ground(P),
+    P_phi =< P + 0.00000000000000023.   % less
+against(P_phi,P,greater) :- 
+    ground(P),
+    P_phi >= P - 0.00000000000000023.   % greater
+against(P_phi,P,strictlyless) :- 
+    ground(P),
+    P_phi + 0.00000000000000023 < P.   % strictly less
+against(P_phi,P,strictlygreater) :- 
+    ground(P),
+    P_phi - 0.00000000000000023 > P .   % strictly greater
+
+% Used to compute the logical negation of
+% a probabilistic formula
+% General use : negate_operator(Op,not(Op))
+negate_operator(less,strictlygreater).
+negate_operator(strictlygreater,less).
+negate_operator(greater,strictlyless).
+negate_operator(strictlyless,greater).
+
+% As in PRISM, the negation of an equal comparison
+% will raise an error. Note that, however,
+% double negation is allowed
+negate_operator(equal,different). 
+
+
+% Used for formulas with 'Always' (G) Operator
+opposed_operator(equal,equal).
+opposed_operator(less,greater).
+opposed_operator(greater,less).
+opposed_operator(strictlygreater,strictlyless).
+opposed_operator(strictlyless,strictlygreater).
+
+%*************************************************
+
+:- dynamic prob_current/2.
+
+% Next formula
+prob_calc(dyn(x(F)),E,P_phi,Operator,Node) :- 
+    retractall(prob_current(Node,_)),
+    assert(prob_current(Node,0.0)),
+    (prob_calc_sub(dyn(x(F)),E,P_phi,Operator,Node) ->
+        true
+    ; against(0.0,P_phi,Operator)),!.
+
+% Until Bounded formula
+prob_calc(dyn(uk(F,K,G)),E,P_phi,Operator,Node) :- 
+    retractall(prob_current(Node,_)),
+    assert(prob_current(Node,0.0)),
+    (sat(G,E) ->
+        retractall(prob_current(Node,_)),
+        assert(prob_current(Node,1.0)),
+        against(1.0,P_phi,Operator)
+    ; sat(F,E) ->
+        (prob_calc_sub(dyn(uk(F,K,G)),E,P_phi,1.0,Operator,Node) ->
+            true
+        ; against(0.0,P_phi,Operator))
+    ; against(0.0,P_phi,Operator)),!.
+
+%*******************************************************
+
+% recursion for the next formula
+prob_calc_sub(dyn(x(F)),E,P_phi,Operator,Node) :-
+    trans(E,S,P),
+    sat(F,S),
+    prob_current(Node,Previous_P),
+    Current_prob is Previous_P +P,
+    retract(prob_current(Node,Previous_P)),
+    assert(prob_current(Node,Current_prob)),
+    against(Current_prob,P_phi,Operator).
+
+% recursion for the bounded until formula
+prob_calc_sub(dyn(uk(F,K_new,G)),E,P_phi,P_trace,Operator,Node) :-
+    (sat(G,E) ->
+        prob_current(Node,P),
+        P_new is P+P_trace,
+        retract(prob_current(Node,P)),
+        assert(prob_current(Node,P_new)),
+        against(P_new,P_phi,Operator)
+        ;   K_new > 0,
+            trans(E,S,P_trans),
+            sat(F,S),
+            K is K_new -1,
+            P_trace_new is P_trace*P_trans,
+            prob_calc_sub(dyn(uk(F,K,G)),S,P_phi,P_trace_new,Operator,Node)
+    ).
