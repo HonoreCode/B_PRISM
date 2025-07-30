@@ -42,7 +42,11 @@ sat(and(F,G),E) :- sat(F,E), sat(G,E).
 sat(or(F,_G),E) :- sat(F,E).
 sat(or(_F,G),E) :- sat(G,E).
 sat(implies(F,G),E) :- sat(or(not(F),G),E).
-sat(not(F),E) :- probformula(_,_,_)\=F,sat_not(F,E).
+sat(not(F),E) :- 
+    F = probformula(Operator,P,Ctl_formula) ->
+        negate_operator(Operator,Neg_Operator),
+        sat(probformula(Neg_Operator,P,Ctl_formula))
+    ; sat_not(F,E).
 
 % Probabilistic-formula cases. Operator is =, < >,<= or >=. 
 %P is a number between 0 and 1 (or a Variable),
@@ -65,62 +69,29 @@ sat(probformula(Operator,P,Ctl_formula),E) :-
         retractall(node(_))        /*reinitialize nodes*/
     ).
 
-% Negation of a probabilistic formula
-sat(not(probformula(Operator,P,Ctl_formula)),E) :-
-    sat(probformula(not(Operator),P,Ctl_formula),E).
-
 % Always bounded formula, we use the dual probabilistic event of fk(K,not(F))
+% We had to use a different way of negating comparison operators in order
 sat_gk(probformula(Operator,P,gk(K,F)),E) :-
     ground(P) -> 
+        opposed_operator(Operator,Opp_Operator),
         Q is 1-P,
-        (Operator = equal ->
-            sat(probformula(Operator,Q,fk(K,not(F))),E)
-        ; Operator = greater ->
-            sat(probformula(less,Q,fk(K,not(F))),E)
-        ; Operator = less ->
-            sat(probformula(greater,Q,fk(K,not(F))),E)
-        ; Operator = strictlygreater ->
-            sat(probformula(strictlyless,Q,fk(K,not(F))),E)
-        ; Operator = strictlyless ->
-            sat(probformula(strictlygreater,Q,fk(K,not(F))),E))
-    ; ((Operator = equal ->
-            sat(probformula(Operator,Q,fk(K,not(F))),E)
-        ; Operator = greater ->
-            sat(probformula(less,Q,fk(K,not(F))),E)
-        ; Operator = less ->
-            sat(probformula(greater,Q,fk(K,not(F))),E)
-        ; Operator = strictlygreater ->
-            sat(probformula(strictlyless,Q,fk(K,not(F))),E)
-        ; Operator = strictlyless ->
-            sat(probformula(strictlygreater,Q,fk(K,not(F))),E)),
-        P is 1-Q)
+        sat(probformula(Opp_Operator,Q,fk(K,not(F))),E)
+
+    ;   opposed_operator(Operator,Opp_Operator),
+        sat(probformula(Opp_Operator,Q,fk(K,not(F))),E),
+        P is 1-Q
     .
 
 % Always formula
 sat_g(probformula(Operator,P,g(F)),E) :-
     ground(P) -> 
+        opposed_operator(Operator,Opp_Operator),
         Q is 1-P,
-        (Operator = equal ->
-            sat(probformula(Operator,Q,f(not(F))),E)
-        ; Operator = greater ->
-            sat(probformula(less,Q,f(not(F))),E)
-        ; Operator = less ->
-            sat(probformula(greater,Q,f(not(F))),E)
-        ; Operator = strictlygreater ->
-            sat(probformula(strictlyless,Q,f(not(F))),E)
-        ; Operator = strictlyless ->
-            sat(probformula(strictlygreater,Q,f(not(F))),E))
-    ; ((Operator = equal ->
-            sat(probformula(Operator,Q,f(not(F))),E)
-        ; Operator = greater ->
-            sat(probformula(less,Q,f(not(F))),E)
-        ; Operator = less ->
-            sat(probformula(greater,Q,f(not(F))),E)
-        ; Operator = strictlygreater ->
-            sat(probformula(strictlyless,Q,f(not(F))),E)
-        ; Operator = strictlyless ->
-            sat(probformula(strictlygreater,Q,f(not(F))),E)),
-        P is 1-Q)
+        sat(probformula(Opp_Operator,Q,f(not(F))),E)
+        
+    ;   opposed_operator(Operator,Opp_Operator),
+        sat(probformula(Opp_Operator,Q,f(not(F))),E),
+        P is 1-Q
     .
 
 % Check the type of the formula
@@ -183,10 +154,22 @@ against(P_phi,P,strictlyless) :-
 against(P_phi,P,strictlygreater) :- 
     ground(P),
     P_phi - 0.00000000000000023 > P .   % strictly greater
-against(P_phi,P,not(less)) :- against(P_phi,P,strictlygreater).
-against(P_phi,P,not(greater)) :- against(P_phi,P,strictlyless).
-against(P_phi,P,not(strictlyless)) :- against(P_phi,P,sup).
-against(P_phi,P,not(strictlygreater)) :- against(P_phi,P,less).
+
+% Used to compute the logical negation of
+% a probabilistic formula
+% General use : negate_operator(Op,not(Op))
+negate_operator(equal,different).
+negate_operator(less,strictlygreater).
+negate_operator(strictlygreater,less).
+negate_operator(greater,strictlyless).
+negate_operator(strictlyless,greater).
+
+% Used for formulas with 'Always' (G) Operator
+opposed_operator(equal,equal).
+opposed_operator(less,greater).
+opposed_operator(greater,less).
+opposed_operator(strictlygreater,strictlyless).
+opposed_operator(strictlyless,strictlygreater).
 
 % Next formula
 :- dynamic prob_current/2.

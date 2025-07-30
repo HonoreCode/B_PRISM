@@ -195,6 +195,26 @@ test_loop_always_eq :-
     T is T1-T0,
     format('Finish loop always equal formula checking. It took ~3d sec.~n \n',[T]).
 
+test_loop_always_eq_not_not :-
+    print('Begin loop always equal with double negation formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(not(not(probformula(equal,0.18402777777777757,g(not(p(b)))))),0) -> print('Double negation formula SUCCEEDS\n')
+            ; print('Double negation FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop always equal with double negation formula checking. It took ~3d sec.~n \n',[T]).
+
+test_loop_always_bounded_eq :-
+    print('Begin loop always bounded equal formula checking\n'),
+    statistics(runtime,[T0|_]),
+    (sat(probformula(equal,P,gk(1,not(p(b)))),0),P=1.0 -> print('Always bounded formula SUCCEEDS\n')
+            ; print('Always bounded formula FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish loop always bounded equal formula checking. It took ~3d sec.~n \n',[T]).
+
 test_loop_eventually_eventually :-
     print('Begin loop eventually eventually formula checking\n'),
     statistics(runtime,[T0|_]),
@@ -218,7 +238,7 @@ test_loop_eventually_until :-
 test_loop_always_negation :- 
     print('Begin loop negation always formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(not(probformula(greater,0.0,g(not(p(b))))),0) -> 
+    (sat(not(probformula(less,0.0,g(not(p(b))))),0) -> 
             print('Negation always formula SUCCEEDS\n')
             ; print('Negation always formula FAILS\n')),
     statistics(runtime,[T1|_]),
@@ -228,7 +248,7 @@ test_loop_always_negation :-
 test_loop_eventually_bounded_negation :- 
     print('Begin loop negation eventually formula checking\n'),
     statistics(runtime,[T0|_]),
-    (sat(not(probformula(equal,0.2,fk(5,p(b))),0)) -> 
+    (sat(not(probformula(less,0.2,fk(5,p(b)))),0) -> 
             print('Negation eventually formula SUCCEEDS\n')
             ; print('Negation eventually formula FAILS\n')),
     statistics(runtime,[T1|_]),
@@ -252,8 +272,10 @@ test_loop :-
     %test_loop_fat_eventually,!,
     test_loop_1_eventually,!,
     test_loop_always_eq,!,
+    test_loop_always_bounded_eq,!,
     test_loop_always_negation,!,
     test_loop_eventually_bounded_negation,!,
+    test_loop_always_eq_not_not,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
@@ -327,7 +349,7 @@ test_simple_always_not_eq :-
 
 test_simple :- 
     assert(choose_model(simple)),
-    print('Begin loop model tests\n\n'),
+    print('Begin simple model tests\n\n'),
     statistics(runtime,[T0|_]),
     test_simple_and,!,
     test_simple_always_strictlyless,!,
@@ -337,7 +359,7 @@ test_simple :-
     test_simple_always_not_eq,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish loop model tests. It took ~3d sec.~n \n\n',[T]),
+    format('Finish simple model tests. It took ~3d sec.~n \n\n',[T]),
     retract(choose_model(simple)).
 
 
