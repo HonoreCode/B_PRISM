@@ -12,7 +12,7 @@
 %########################################################
 
 % This part differ depending on your prolog implementation
-:- use_module(bounded_testing_dynamic_vs_normal,[choose_model/1]).
+:- use_module(testing_prob0,[choose_model/1]).
 
 %########################################################
 

@@ -228,7 +228,7 @@ prob0_version2(F,[E|T],Node) :-
     assert(table_prob0_version2(S,Node)),
     prob0_version2(F,[E,S|T],Node),!.
 
-prob0_version2(F,[_E|T]):-prob0_version2(F,T).
+prob0_version2(F,[_E|T],Node):-prob0_version2(F,T,Node).
 
 
 % ~ ~ ~ ~ 2nd precomputation for the until formula ~ ~ ~ ~
@@ -266,7 +266,30 @@ search_prob1_version1(F,G,E,Node):-
 
 
 %//////////////////////////////////////////////
+:- dynamic table_prob1_version2/3.
 
+prob1_version2(_F,_G,E,Node) :-
+    table_prob1_version2(E,true,Node),!.
+
+prob1_version2(_F,_G,E,Node) :- 
+    \+(table_prob0_version2(E,Node)),
+    !,
+    asserta(table_prob1_version2(E,true,Node)).
+
+prob1_version2(F,G,E1,Node) :- 
+    sat(F,E1),
+    \+(sat(G,E1)),
+    assert(table_prob1_version2(E1,computing,Node)),
+    trans(E1,E2,_P),
+    \+ table_prob1_version2(E2,computing,Node),
+    (prob1_version2(F,G,E2,Node) ->
+        asserta(table_prob1_version2(E1,true,Node)),
+        retract(table_prob1_version2(E1,computing,Node))
+    ),!.
+
+search_prob1_version2(F,G,E,Node):-
+    retractall(table_prob1_version2(_,computing,Node)),
+    prob1_version2(F,G,E,Node).
 
 % Until formula computation
 
@@ -275,21 +298,29 @@ search_prob1_version1(F,G,E,Node):-
 prob_calc_u_version_1(F,G,List_S,P_vect,Node) :- 
     findall(S,(state(S),search_prob0_version1(F,G,S,Node)),List_S),
     findall(E,(state(E),search_prob1_version1(F,G,E,Node)),_List),
-    prob_calc_u2(F,G,List_S,List_S,P_vect,P_vect,Node).
+    prob_calc_u2_v1(F,G,List_S,List_S,P_vect,P_vect,Node).
 
 prob_calc_u_version_2(F,G,List_S,P_vect,Node) :- 
     findall(S,(state(S),sat(G,S),assert(table_prob0_version2(S,Node))),T),
     prob0_version2(F,T,Node),
     findall(S,(table_prob0_version2(S,Node)),List_S),
     findall(E,(state(E),search_prob1_version2(F,G,E,Node)),_List),
-    prob_calc_u2(F,G,List_S,List_S,P_vect,P_vect,Node).
+    prob_calc_u2_v2(F,G,List_S,List_S,P_vect,P_vect,Node).
 
-prob_calc_u2(_F,_G,[],_List_S,[],_P_vect,_Node).
-prob_calc_u2(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,Node) :-
+prob_calc_u2_v1(_F,_G,[],_List_S,[],_P_vect,_Node).
+prob_calc_u2_v1(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,Node) :-
     (table_prob1_version1(S,true,Node) -> prob_calc_u3(S,List_S,P_phi,P_vect) 
         ;   P_phi=1.0
     ),
-    prob_calc_u2(F,G,List_S_explored,List_S,P_vect_explored,P_vect,Node).
+    prob_calc_u2_v1(F,G,List_S_explored,List_S,P_vect_explored,P_vect,Node).
+
+prob_calc_u2_v2(_F,_G,[],_List_S,[],_P_vect,_Node).
+prob_calc_u2_v2(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,Node) :-
+    (table_prob1_version2(S,true,Node) -> prob_calc_u3(S,List_S,P_phi,P_vect) 
+        ;   P_phi=1.0
+    ),
+    prob_calc_u2_v2(F,G,List_S_explored,List_S,P_vect_explored,P_vect,Node).
+
 
 prob_calc_u3(_S,[],0.0,[]).
 prob_calc_u3(S,[E|List_S],P_phi_new,[P|P_vect]) :-
@@ -297,7 +328,7 @@ prob_calc_u3(S,[E|List_S],P_phi_new,[P|P_vect]) :-
     (trans(S,E,P_trans) -> {P_phi_new = P*P_trans + P_phi}
         ; P_phi_new=P_phi
     ).
- 
+
 find_prob_u([E],[P],E,P).
 find_prob_u([S1,S2|List_S],[Prob1,Prob2|P_vect],E,P) :- 
     (E=S1,P=Prob1) 
