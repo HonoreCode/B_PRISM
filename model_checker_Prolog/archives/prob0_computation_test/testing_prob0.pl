@@ -291,3 +291,101 @@ test_crowds_5_3 :-
     format('Finish crowds_5_3 protocol tests. It took ~3d sec.~n \n\n',[T]),
     retract(choose_model(crowds_5_3)).
 
+%#################################################################
+
+% TESTS FOR THE CROWDS PROTOCOL MODEL WITH PAREMETERS 10 & 3
+
+% The adversary will eventually observe the real sender more than once
+
+test_crowds_10_3_positive :-
+    print('Begin crowds_10_3 positive formula checking version 1\n'),
+    statistics(runtime,[T0|_]),
+    sat(probformula(equal,P,f1(p(positive))),0),
+    (approx_float(P,0.03679) -> print('positive formula version 1 SUCCEEDS\n')
+        ; print('positive formula version 1 FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 positive formula checking version 1. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]),
+    print('Begin crowds_10_3 positive formula checking version 2\n'),
+    statistics(runtime,[T2|_]),
+    sat(probformula(equal,P,f2(p(positive))),0),
+    (approx_float(P,0.03679) -> print('positive formula version 2 SUCCEEDS\n')
+        ; print('positive formula version 2 FAILS\n')
+    ),
+    statistics(runtime,[T3|_]),
+    T_prime is T3-T2,
+    format('Finish crowds_10_3 positive formula checking version 2. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]),
+    (T<T_prime ->
+        T_comp is T_prime-T,
+        format('For this formula, the version 1 model-checking is ~3d sec.~n faster than the version 2 model-checking \n\n\n',[T_comp])
+    ;   T_comp is T-T_prime,
+        format('For this formula, the version 2 model-checking is ~3d sec.~n faster than the version 1 model-checking \n\n\n',[T_comp])
+        )
+    .
+
+test_crowds_10_3_false_positive :-
+    print('Begin crowds_10_3 false_positive formula checking version 1\n'),
+    statistics(runtime,[T0|_]),
+    sat(probformula(equal,P,f1(p(false_positive))),0),
+    (approx_float(P,0.01563) -> print('false_positive formula version 1 SUCCEEDS\n')
+        ; print('false_positive formula version 1 FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 false_positive formula checking version 1. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]),
+    print('Begin crowds_10_3 false_positive formula checking version 2\n'),
+    statistics(runtime,[T2|_]),
+    sat(probformula(equal,P,f2(p(false_positive))),0),
+    (approx_float(P,0.01563) -> print('false_positive formula version 2 SUCCEEDS\n')
+        ; print('false_positive formula version 2 FAILS\n')
+    ),
+    statistics(runtime,[T3|_]),
+    T_prime is T3-T2,
+    format('Finish crowds_10_3 false_positive formula checking version 2. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]),
+    (T<T_prime ->
+        T_comp is T_prime-T,
+        format('For this formula, the version 1 model-checking is ~3d sec.~n faster than the version 2 model-checking \n\n\n',[T_comp])
+    ;   T_comp is T-T_prime,
+        format('For this formula, the version 2 model-checking is ~3d sec.~n faster than the version 1 model-checking \n\n\n',[T_comp])
+        )
+    .
+
+test_crowds_10_3_confident :-
+    print('Begin crowds_10_3 confident formula checking version 1\n'),
+    statistics(runtime,[T0|_]),
+    sat(probformula(equal,P,f1(p(confident))),0),
+    (approx_float(P,0.03679) -> print('confident formula version 1 SUCCEEDS\n')
+        ; print('confident formula version 1 FAILS\n')
+    ),
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 confident formula checking version 1. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]),
+    print('Begin crowds_10_3 confident formula checking version 2\n'),
+    statistics(runtime,[T2|_]),
+    sat(probformula(equal,P,f2(p(confident))),0),
+    (approx_float(P,0.03679) -> print('confident formula version 2 SUCCEEDS\n')
+        ; print('confident formula version 2 FAILS\n')
+    ),
+    statistics(runtime,[T3|_]),
+    T_prime is T3-T2,
+    format('Finish crowds_10_3 confident formula checking version 2. \n The result is ~h \n It took ~3d sec.~n \n',[P,T]),
+    (T<T_prime ->
+        T_comp is T_prime-T,
+        format('For this formula, the version 1 model-checking is ~3d sec.~n faster than the version 2 model-checking \n\n\n',[T_comp])
+    ;   T_comp is T-T_prime,
+        format('For this formula, the version 2 model-checking is ~3d sec.~n faster than the version 1 model-checking \n\n\n',[T_comp])
+        )
+    .
+
+test_crowds_10_3 :-
+    assert(choose_model(crowds_10_3)),
+    print('Begin crowds_10_3 protocol model tests\n\n'),
+    statistics(runtime,[T0|_]),
+    test_crowds_10_3_positive,!,
+    test_crowds_10_3_false_positive,!,
+    test_crowds_10_3_confident,!,
+    statistics(runtime,[T1|_]),
+    T is T1-T0,
+    format('Finish crowds_10_3 protocol tests. It took ~3d sec.~n \n\n',[T]),
+    retract(choose_model(crowds_10_3)).
