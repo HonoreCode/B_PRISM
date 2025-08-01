@@ -5,7 +5,7 @@
     {
       "name": "Synchronous_Leader_Election_Protocol",
       "description": "",
-      "location": "examples/synchronous_leader_election/ProB/Synchronous_Leader_Election_Protocol.mch",
+      "location": "examples/synchronous_leader_election/B_machine/Synchronous_Leader_Election_Protocol.mch",
       "lastUsedPreferenceName": "default",
       "validationTasks": [],
       "ltlPatterns": [],
@@ -15,7 +15,7 @@
     {
       "name": "Crowds_protocol_B_machine",
       "description": "",
-      "location": "examples/crowds_protocol/ProB/Crowds_protocol_B_machine.mch",
+      "location": "examples/crowds_protocol/B_machine/Crowds_protocol_B_machine.mch",
       "lastUsedPreferenceName": "default",
       "validationTasks": [],
       "ltlPatterns": [],
@@ -28,7 +28,7 @@
   "metadata": {
     "fileType": "Project",
     "formatVersion": 57,
-    "savedAt": "2025-07-30T14:33:15.501923300Z",
+    "savedAt": "2025-08-01T12:30:55.136291800Z",
     "creator": "User",
     "proB2KernelVersion": "4.13.2-SNAPSHOT",
     "proBCliVersion": null,
