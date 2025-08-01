@@ -1,4 +1,6 @@
 % File to translate the state space into something readable for the tester
+% Used for the comparison of unbounded model-checkers
+
 % WORKING WITH SICSTUS
 
 :- module(translate_model_prob0,[start/1,prop/2,state/1,trans/3]).

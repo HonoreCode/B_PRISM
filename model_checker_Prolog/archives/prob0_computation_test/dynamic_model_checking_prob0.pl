@@ -1,11 +1,25 @@
 %###############################################
 
-% This is a model-checker verifying Probabilistic Computation
-% Tree Logic (PCTL) formulas over Discrete-Time Markov Chains (DTMC)
-% This model-checker is the one used by ProB
+% This code is intended to compare the efficiency of 
+% 2 different versions for the calculus of table_prob0,
+% used for unbounded formulas.
 
-% The algorithm was greatly based on the PRISM's one.
-% See http://www.prismmodelchecker.org/lectures/pmc/
+% The version 1 is the currently used version in the
+% model-checker integrated in ProB.
+
+% One part of it is not optimal in efficiency, and
+% this is what led to the version 2 that uses a totally different 
+% approach.
+
+% As you can see with the benchmark file (test),
+% the version 2 is more efficient in some model
+% checking, but slower in some other.
+
+% As the version 1 is more stable in efficiency overall,
+% it was decided to keep it in the current model-checker,
+% but the version 2 is kept archived if someone want
+% to try to work on it and maybe to improve it
+
 
 % Working on SICStus prolog 4.10
 
@@ -179,7 +193,8 @@ prob_calc_2(u2(F,G),E,P_phi,Node) :-
 
 % ~ ~ ~ ~ 1rst precomputation for the until formula ~ ~ ~ ~
 
-%      prob0 calculus VERSION 1
+
+%    -  -  prob0 calculus VERSION 1     -   -
 
 % This is a graph-based computation to find 
 % all the states that can reach a state 
@@ -207,7 +222,8 @@ prob0_version1(F,G,E1,Node) :-
     ),!.
 
 % This part could definitely be improved to 
-% reduce computation time
+% reduce computation time, and this is the reason
+% why we tried the second version
 search_prob0_version1(F,G,E,Node):-
     retractall(table_prob0_version1(_,computing,Node)),
     prob0_version1(F,G,E,Node).
@@ -215,8 +231,11 @@ search_prob0_version1(F,G,E,Node):-
 
 % - - - - - - - - - - - - - - - - - - - 
 
-%      prob0 calculus VERSION 2
+%    -  -  prob0 calculus VERSION 2     -   -
 
+% The idea is to start from the states verifying
+% G, and going backwards, in contrary to the 
+% version 1 which is going forward.
 :- dynamic table_prob0_version2/2.
 
 prob0_version2(_F,[],_Node).
@@ -238,6 +257,7 @@ prob0_version2(F,[_E|T],Node):-prob0_version2(F,T,Node).
 % which IS NOT verifying a property G without 
 % leaving states verifying a property F
 
+%    -  -  prob1 calculus VERSION 1     -   -
 
 :- dynamic table_prob1_version1/3.
 
@@ -265,7 +285,8 @@ search_prob1_version1(F,G,E,Node):-
     prob1_version1(F,G,E,Node).
 
 
-%//////////////////////////////////////////////
+%    -  -  prob1 calculus VERSION 2     -   -
+
 :- dynamic table_prob1_version2/3.
 
 prob1_version2(_F,_G,E,Node) :-
@@ -291,21 +312,21 @@ search_prob1_version2(F,G,E,Node):-
     retractall(table_prob1_version2(_,computing,Node)),
     prob1_version2(F,G,E,Node).
 
+
+%###################################
+
+
 % Until formula computation
 
 % P_vect is the vector of non-null probabilities 
-% for the until formula
+
+
+%       VERSION 1
+
 prob_calc_u_version_1(F,G,List_S,P_vect,Node) :- 
     findall(S,(state(S),search_prob0_version1(F,G,S,Node)),List_S),
     findall(E,(state(E),search_prob1_version1(F,G,E,Node)),_List),
     prob_calc_u2_v1(F,G,List_S,List_S,P_vect,P_vect,Node).
-
-prob_calc_u_version_2(F,G,List_S,P_vect,Node) :- 
-    findall(S,(state(S),sat(G,S),assert(table_prob0_version2(S,Node))),T),
-    prob0_version2(F,T,Node),
-    findall(S,(table_prob0_version2(S,Node)),List_S),
-    findall(E,(state(E),search_prob1_version2(F,G,E,Node)),_List),
-    prob_calc_u2_v2(F,G,List_S,List_S,P_vect,P_vect,Node).
 
 prob_calc_u2_v1(_F,_G,[],_List_S,[],_P_vect,_Node).
 prob_calc_u2_v1(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,Node) :-
@@ -314,6 +335,18 @@ prob_calc_u2_v1(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,No
     ),
     prob_calc_u2_v1(F,G,List_S_explored,List_S,P_vect_explored,P_vect,Node).
 
+
+
+%       VERSION 2
+
+prob_calc_u_version_2(F,G,List_S,P_vect,Node) :- 
+    findall(S,(state(S),sat(G,S),assert(table_prob0_version2(S,Node))),T),
+    prob0_version2(F,T,Node),
+    findall(S,(table_prob0_version2(S,Node)),List_S),
+    findall(E,(state(E),search_prob1_version2(F,G,E,Node)),_List),
+    prob_calc_u2_v2(F,G,List_S,List_S,P_vect,P_vect,Node).
+
+
 prob_calc_u2_v2(_F,_G,[],_List_S,[],_P_vect,_Node).
 prob_calc_u2_v2(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,Node) :-
     (table_prob1_version2(S,true,Node) -> prob_calc_u3(S,List_S,P_phi,P_vect) 
@@ -321,6 +354,7 @@ prob_calc_u2_v2(F,G,[S|List_S_explored],List_S,[P_phi|P_vect_explored],P_vect,No
     ),
     prob_calc_u2_v2(F,G,List_S_explored,List_S,P_vect_explored,P_vect,Node).
 
+%       -   -   -   -   -   -   -   
 
 prob_calc_u3(_S,[],0.0,[]).
 prob_calc_u3(S,[E|List_S],P_phi_new,[P|P_vect]) :-

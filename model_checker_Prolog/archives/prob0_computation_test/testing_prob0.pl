@@ -1,10 +1,23 @@
 %####################################################*
 
-% Test file to verify some formulas over the following models :
+% Test file to compare the efficiency of 
+% two different version of the computation of 
+% prob0, used for the verification of unbounded
+% PCTL formulas
+
+% To run the test, query :
+% :- test_prob0.
+
+% As you can see, the second version of the 
+% computation of prob0 is overall faster than 
+% the first version, except for the synchronous leader
+% election protocol were it is way more slower.
+
+%   ~   ~   ~   ~   ~   ~
+
+
 
 %    - "loop" is a small model with a loop
-
-%    - "small" is an even smaller model
 
 %    - "big" is a big model from Prism's Benchmark suite :
 %          (Synchronous leader election protocol,
@@ -20,8 +33,6 @@
 %          (Crowds Protocol,
 %           parameters : PF=0.8, badC=0.091, TotalRuns=3, CrowdSize=10
 %           see http://www.prismmodelchecker.org/casestudies/crowds.php)
-
-%   - If you want to test all the different models, run "?- full_test."
 
 
 %                WORKING WITH SICSTUS
