@@ -1,4 +1,6 @@
 % File to translate the state space into something readable for the tester
+% Used for the comparison of bounded model-checkers
+
 % WORKING WITH SICSTUS
 
 :- module(bounded_translate_model_dyn,[start/1,prop/2,state/1,trans/3]).

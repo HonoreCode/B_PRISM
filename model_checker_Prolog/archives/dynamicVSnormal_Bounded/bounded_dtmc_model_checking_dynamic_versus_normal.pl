@@ -1,6 +1,6 @@
 %###############################################
 
-% This version of the model-checker serve to compare 
+% This version of the model-checker is intended to compare 
 % between the dynamic model-checking and the previous
 % model-checker, which use findall, and is called here
 % as the "normal" one
@@ -205,7 +205,10 @@ prob_calc(dyn(uk(F,K,G)),E,P_phi,Operator,Node) :-
 
 
 %*************************************************
-% Normal model-checker
+%*************************************************
+
+% Here's the previous version of the model checker for 
+% bounded formulas
 
 % Next formula
 
@@ -232,7 +235,33 @@ prob_calc(uk(F,K_new,G),E,P_phi) :-
 
 %*******************************************************
 
-% recursion for the next formula with dynamic model-checker
+
+% probability sum for the next formula
+% with the normal model-checker
+add_prob([],_,0.0).
+add_prob([State|List_States],E,P_phi_new) :- 
+    (trans(E,State,P) -> P_trans = P 
+        ; P_trans=0.0
+    ),
+    add_prob(List_States,E,P_phi),
+    P_phi_new is P_phi + P_trans.
+
+% probability sum for the bounded until formula
+% with the normal model-checker
+add_prob_prime(0.0,[],_,_,_,_).
+add_prob_prime(P_phi_new,[S|List_S],E,F,G,K) :-
+    trans(E,S,P_trans),
+    prob_calc(uk(F,K,G),S,P_mat),
+    add_prob_prime(P_phi,List_S,E,F,G,K),
+    P_phi_new is P_trans*P_mat + P_phi.
+
+
+
+%*******************************************************
+%*******************************************************
+
+
+% recursion for the next formula with the dynamic model-checker
 prob_calc_sub(dyn(x(F)),E,P_phi,Operator,Node) :-
     trans(E,S,P),
     sat(F,S),
@@ -242,7 +271,7 @@ prob_calc_sub(dyn(x(F)),E,P_phi,Operator,Node) :-
     assert(prob_current(Node,Current_prob)),
     against(Current_prob,P_phi,Operator).
 
-% recursion for the bounded until formula with dynamic model-checker
+% recursion for the bounded until formula with the dynamic model-checker
 prob_calc_sub(dyn(uk(F,K_new,G)),E,P_phi,P_trace,Operator,Node) :-
     (sat(G,E) ->
         prob_current(Node,P),
@@ -258,21 +287,3 @@ prob_calc_sub(dyn(uk(F,K_new,G)),E,P_phi,P_trace,Operator,Node) :-
             prob_calc_sub(dyn(uk(F,K,G)),S,P_phi,P_trace_new,Operator,Node)
     ).
 
-%*******************************************************
-
-% probability sum for the next formula
-add_prob([],_,0.0).
-add_prob([State|List_States],E,P_phi_new) :- 
-    (trans(E,State,P) -> P_trans = P 
-        ; P_trans=0.0
-    ),
-    add_prob(List_States,E,P_phi),
-    P_phi_new is P_phi + P_trans.
-
-% probability sum for the bounded until formula
-add_prob_prime(0.0,[],_,_,_,_).
-add_prob_prime(P_phi_new,[S|List_S],E,F,G,K) :-
-    trans(E,S,P_trans),
-    prob_calc(uk(F,K,G),S,P_mat),
-    add_prob_prime(P_phi,List_S,E,F,G,K),
-    P_phi_new is P_trans*P_mat + P_phi.

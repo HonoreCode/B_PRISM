@@ -1,6 +1,13 @@
 %####################################################*
 
-% Test file to verify some formulas over 2 models :
+% Test file to compare the efficiency of 2 
+% different model-checker for bounded formulas.
+
+% To run the test, query :
+% :- test_dynamic_vs_normal.
+
+
+% Tests are based on the following models :
 
 %    - "loop" is a small model with a loop
 
@@ -14,12 +21,6 @@
 %           parameters : PF=0.8, badC=0.167, TotalRuns=3, CrowdSize=5
 %           see http://www.prismmodelchecker.org/casestudies/crowds.php)
 
-
-
-%   - If you want to test all the tree models, run "?- full_test."
-
-%   - If you want to do a quick test on the first two models,
-%   run "?- partial_test."
 
 
 %                WORKING WITH SICSTUS
@@ -188,25 +189,24 @@ test_dynamic_next_07_sinf :-
         ).
 
 test_dynamic_eventually :-
-    print('Begin eventually formula dynamic model-checking with k=30\n'),
+    print('Begin eventually formula dynamic model-checking with k=15\n'),
     statistics(runtime,[T0|_]),
-    (sat(probformula(equal,P,dyn(f(10,p(b)))),0),print(P),nl ->
+    (sat(probformula(equal,P,dyn(f(15,p(b)))),0),print(P),nl ->
         print('Eventually formula dynamic checking SUCCEEDS\n')
         ; print('Eventually formula dynamic checking FAILS\n')
     ),!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
-    format('Finish eventually formula dynamic model-checking with k=30 \n It took ~3d sec.~n \n',[T]),
-    break,
-    print('Begin eventually formula normal model-checking with k=30\n'),
+    format('Finish eventually formula dynamic model-checking with k=15 \n It took ~3d sec.~n \n',[T]),
+    print('Begin eventually formula normal model-checking with k=15\n'),
     statistics(runtime,[T2|_]),
-    (sat(probformula(equal,P,f(30,p(b))),0) -> 
+    (sat(probformula(equal,P,f(15,p(b))),0) -> 
         print('Eventually formula normal checking SUCCEEDS\n')
         ; print('Eventually formula normal checking FAILS\n')
     ),
     statistics(runtime,[T3|_]),
     T_prime is T3-T2,
-    format('Finish eventually formula normal model-checking with k=30. \n It took ~3d sec.~n \n',[T_prime]),
+    format('Finish eventually formula normal model-checking with k=15. \n It took ~3d sec.~n \n',[T_prime]),
     (T<T_prime ->
         T_comp is T_prime-T,
         format('For this formula, the dynamic model-checking is ~3d sec.~n faster than the normal model-checking \n\n\n',[T_comp])
@@ -227,8 +227,6 @@ test_dynamic_vs_normal :-
     test_dynamic_next_07_sinf,!,
     test_dynamic_next_07_equal,!,
     test_dynamic_eventually,!,
-    test_dynamic_loop,!,
-    test_dynamic_next_next,!,
     statistics(runtime,[T1|_]),
     T is T1-T0,
     format('Finish dynamic model-checking tests. It took ~3d sec.~n \n\n',[T]),
