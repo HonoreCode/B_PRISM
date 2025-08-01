@@ -1,6 +1,6 @@
 This is the code for a model-checker for Probabilistic Computational Tree Logic (PCTL) over Discrete-Time Markov Chains (DTMC) written in prolog (for [SICStus prolog](https://sicstus.sics.se/)), and implemented in ProB.
 
-Before an introduction to thoses notions and some useful comments about it, here's how the files are ordered :
+Before a presentation of the model-checker some useful comments about it, here's how the files are ordered :
 - The examples contains 4 different models used for benchmarking. They can countain :
     - An [XTL](https://prob.hhu.de/w/index.php?title=Other_languages) version of the model, used to run the model-checker with [ProB](https://prob.hhu.de/w/index.php?title=The_ProB_Animator_and_Model_Checker).
     - A [PRISM](https://www.prismmodelchecker.org/) version of the model, as well as a list of pctl formulas over it
@@ -11,14 +11,34 @@ Before an introduction to thoses notions and some useful comments about it, here
 - A prolog version of the model-checker, working on its own, used for testing, as well as some archives of different approach studied for the model-checker.
 
 ## PCTL syntax
-*For more details, look at the [PRISM lecture notes](https://www.prismmodelchecker.org/lectures/pmc/)*
+*For an introduction to PCTL and DTMC, look at the [PRISM lecture notes](https://www.prismmodelchecker.org/lectures/pmc/)*
 
-A PCTL formula is written as `sat(Formula,E)`, with `E` being a state and `Formula` being a probabilistic formula or a classic logical operator (`true`, `false`, `and(Formula1,Formula2)`, `or(Formula1,Formula2)`, `imp(Formula1,Formula2)`).
-A probabilistic formula is written as `prob_formula(Operator,Probability,CTL_Formula)` with `Operator` being a comparison operator (`sup`,`inf`,`eq`..), `Probability` being a (Prolog) variable or a number between 0 and 1, and `CTL_Formula` being one CTL formula of the follows :
-- Next : `x(Property)`
-- Until bounded : `u(Property1,K,Property2)`
-- Until : `u(Property1,Property2)`
-- Always bounded : `g(K,Property)`
-- Always : `g(Property)`
-- Eventually bounded : `f(K,Property)`
-- Eventually : `f(Property)`
+The idea of PCTL is to specify temporal properties on a model while taking into account probabilities.
+
+For instance, the formula $P_{<{0.75}}[X {finished}]$ states that the probability that the next state verify the property "finished" is strictly less than 0.75.
+
+The PCTL formulas accpted by the [parser](https://github.com/hhu-stups/probparsers/tree/PCTLparser/ltlparser) are separated onto 2 categories : path formulas and state formulas.
+
+A state formula $\phi$ is either :
+- *true*
+- *false*
+- {property}, with property being defined on the dtmc
+- $\phi_{1}$ & $\phi_{2}$
+- $\phi_{1}$ or $\phi_{2}$
+- $\phi_{1} \rightarrow \phi_{2}$
+- $\phi_{1} \leftrightarrow \phi_{2}$
+- not $\phi$
+- $P_{op\{probability\}}[\Phi]$, with $op \in \{<,>,\le,\ge\}$, probability beign either a variable or a number between 0 and 1, and $\Phi$ being a path formula.
+
+A path formula $\Phi$ is either :
+- X $\phi$, the next operator, with $\phi$ being a state formula
+- F $\phi$, the eventually operator
+- F $\le{k}$ $\phi$ with $k$ being an integer different than 0, the bounded eventually operator
+- G $\phi$, the always operator
+- G $\le{k}$ $\phi$ the bounded always operator
+- $\phi_{1}$ U $\phi_{2}$, the until operator
+- $\phi_{1}$ U $\le{k}$ $\phi_{2}$, the bounded until operator
+
+Note that, as in PRISM, the syntax is extented to add = as an operator in a probabilistic path formula. This allow to evaluate the probability of a path from a certain state
+
+To evaluate such a formula using ProB, you have to [load a model](https://prob.hhu.de/w/index.php?title=Using_the_Command-Line_Version_of_ProB) into the [REPL](https://prob.hhu.de/w/index.php?title=ProB_REPL) and to enter the formula you want to verify as `:pctl formula`
