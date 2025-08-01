@@ -16,9 +16,11 @@ The main idea behind writing such a model-checker, particularly when already [gr
 However, note that it is at no point intended to extend the B syntax in order to accept probabilities. See *Probabilistic termination in B, AK McIver, CC Morgan, Thai Son Hoang (2003)*
 
 
-One other argument is that, for [bounded formulas](#pctl), the model-checker works dynamicly, which means that it does not need to explore the full state space (which may be infinite) to perform the checking of a formula.
+One other argument is that, for bounded formulas, the model-checker works dynamicly, which means that it does not need to explore the full state space (which may be infinite) to perform the checking of a formula.
 
 Note that there is currently no kind of trace counter-example implemented. See [*Probabilistic Model Checking: Advances and Applications, Marta Kwiatkowska, Gethin Norman, David Parker. p.42*](https://www.cs.ox.ac.uk/people/david.parker/papers/fsv-pmc.pdf) for more information on that topic
+
+**Important** : the model-checker is not yet suited to work with models with transitions with a probability of 0.0. Avoid defining your model with such transitions as it could lead to some errors.
 
 ## PCTL syntax {#pctl}
 *For an introduction to PCTL and DTMC, look at the [PRISM lecture notes](https://www.prismmodelchecker.org/lectures/pmc/)*
@@ -38,7 +40,7 @@ A state formula $\phi$ is either :
 - $\phi_{1} \rightarrow \phi_{2}$
 - $\phi_{1} \leftrightarrow \phi_{2}$
 - not $\phi$
-- $P_{op\{probability\}}[\Phi]$, with $op \in \{<,>,\le,\ge\}$, probability beign either a variable or a number between 0 and 1, and $\Phi$ being a path formula.
+- $P_{op\{probability\}}[\Phi]$, with $op \in \{<,>,\le,\ge\}$, probability being either a variable or a number between 0 and 1, and $\Phi$ being a path formula.
 
 A path formula $\Phi$ is either :
 - X $\phi$, the next operator, with $\phi$ being a state formula
@@ -49,7 +51,7 @@ A path formula $\Phi$ is either :
 - $\phi_{1}$ U $\phi_{2}$, the until operator
 - $\phi_{1}$ U $\le{k}$ $\phi_{2}$, the bounded until operator
 
-Note that, as in PRISM, the syntax is extented to add = as an operator in a probabilistic path formula. This allow to evaluate the probability of a path from a certain state
+Note that, as in PRISM, the syntax is extented to add = as an operator in a probabilistic path formula. This allow to evaluate the probability of a path from a certain state. Those are the only type of formulas that accept a not grounded probability as an argument. Avoid the negation of such formula.
 
 To evaluate such a formula using ProB, you have to [load a model](https://prob.hhu.de/w/index.php?title=Using_the_Command-Line_Version_of_ProB) into the [REPL](https://prob.hhu.de/w/index.php?title=ProB_REPL) and to enter the formula you want to verify as `:pctl formula`
 
@@ -58,9 +60,15 @@ To evaluate such a formula using ProB, you have to [load a model](https://prob.h
 
 For now, the model-checking works on prob only on XTL models, using the XTL extention system. It would be great to have the possibility to add probabilities directly over a B model, for instance to use variables present on the model.
 
+Due to the nature of float numbers, the comparison of 2 numbers is evaluated with an $\epsilon$ precision. However, due to the nature of PCTL, properties with a given probability of 0.0 or 1.0 are equivalent to CTL properties, and in that sense, they could be checked using only graph-based methods to avoid floats imprecision. That could be done either by writing a specific checker for those formula in the model-checker or by calling the [already-existing CTL model-checker](https://prob.hhu.de/w/index.php?title=LTL_Model_Checking) in ProB.
+
 The direction chosen for the model-checking of bounded formulas is quite different from the one used by PRISM, a good aspect of it is that it is dynamic and doesn't require to have the whole state-space available to refute or accept a formula. However, the speed goes down as the bound is increasing. Maybe some improvement could be done here to find a better solution that mix the pros and cons of both approaches.
 
 
 The model-checking of unbounded formulas require to solve a linear equation. This is done in prolog using CLP(R), but this is arguably not the fastest solution, and in top of that, it doesn't estimate the error on the calculus, which would be definitely interesting for the use we make of it. 
 
-As shown in the archives, the precomputation needed for the model-checking of unbounded formula isn't optimal, and more investigation on that would be interesting to improve the speed of the model-checker
+As shown in the archives, the precomputation needed for the model-checking of unbounded formula isn't optimal, and more investigation on that would be interesting to improve the speed of the model-checker.
+
+A really good feature of PRISM is the use of rewards to also check formulas over expectation. this is currently not implemented into the model-checker but that would be great.
+
+This is not entirely related to the model-checker, but if it becomes possible to anotate B models with probabilities, it would be interesting as a future work to compute the probability of a trace on real-time when doing trace exploration with ProB.
